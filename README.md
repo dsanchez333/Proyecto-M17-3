@@ -18,6 +18,7 @@
 <!-- Vulnerabilities List -->
 ## Vulnerabilities
 
+* Hola calvo
 * SQL Injection
 * Cross Site Scripting (XSS)
 * Command Injection
