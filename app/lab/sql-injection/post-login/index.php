@@ -16,21 +16,33 @@ if(isset($_POST['username']) && isset($_POST['password']) ){
 	$usr=$_POST['username'];
 	$pwd=$_POST['password'];
 
-	$sql = "SELECT username,password FROM users WHERE username='" . $usr . "' AND password='" . $pwd . "'";
+	//Fem una consulta preparada
+	$sql = "SELECT username,password FROM users WHERE username=? AND password=?";
 
+	//Preparem la consulta
+	if ($stmt = $mysqli->prepare($sql)) {
+		$stmt->bind_param("ss",$usr,$pwd);
 
-if ($result = $mysqli->query($sql)) {
-while($obj = $result->fetch_object()){
-	$_SESSION['username'] = $usr;
-	header("Location: admin.php");
-	exit;
-}
-}
+		//Executem la consulta
+		if ($stmt->execute()) {
+			//Magatzemem el resultat de la consulta
+			$stmt->store_result();
 
-elseif($mysqli->error){
-	
-}		
-	}	
+			//Verifiquem si hi ha files
+			if ($stmt->num_rows > 0) {
+				$_SESSION['username'] = $usr;
+				header("Location: admin.php");
+				exit;
+			}
+		} else {
+			//Controlem l'error de l'execucio de la consulta
+			print("Eres un parguela");
+		}
+		//Tanquem la consulta
+		$stmt->close();
+	}	else {
+		print("Parguela jajajajajja");
+	}
 
 ?>
 
