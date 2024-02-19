@@ -87,8 +87,11 @@ $strings = tr();
                                         
                                             if(isset($_GET['search']) and $_GET['search'] != "" )
                                             {
-                                                $query = $mysqli->query("SELECT * FROM users WHERE 
-                                                name LIKE '%" . $_GET['search'] . "%'");
+                                              $search = '%' . $_GET['search'] . '%';
+                                              $stmt = $mysqli->prepare("SELECT * FROM users WHERE name LIKE ?");
+                                              $stmt->bind_param("s", $search);
+                                              $stmt->execute();
+                                              $result = $stmt->get_result();
                                                 while($list = $query->fetch_array())
                                                 {
                                                     echo '

@@ -14,7 +14,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $correctCode = $_SESSION['2fa_code'];
             $attempts = $_SESSION['attempts'];
 
-            if ($userEnteredCode == $correctCode) {
+            if ($attempts >= 3) {
+                // If the user is banned after 3 attempts, set ban expiration time and show error message.
+                $_SESSION['ban_expiration'] = time() + 24 * 3600; // 24 hours ban
+                $errorMessage = 'Incorrect verification code! You are banned for 24 hours.';
+                
+                // Display the error message to the user.
+                echo $errorMessage;
+                
+                // Optionally, you can exit the script here to prevent further execution.
+                exit();
+            } elseif ($userEnteredCode == $correctCode) {
                 // If the verification code is correct, redirect to the admin page.
                 header('Location: admin.php');
                 exit();
@@ -22,15 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Incorrect verification code, increase the attempt count.
                 $attempts++;
 
-                // If it exceeds 3 attempts, ban the user for 24 hours.
-                if ($attempts >= 3) {
-                    $_SESSION['ban_expiration'] = time() + 24 * 3600; // 24 hours ban
-                    $errorMessage = 'Incorrect verification code! You are banned for 24 hours.';
-                } else {
-                    // Store the incorrect login attempts count in the session.
-                    $_SESSION['attempts'] = $attempts;
-                    $errorMessage = 'Incorrect verification code! Remaining attempts:' . (3 - $attempts);
-                }
+                // Store the incorrect login attempts count in the session.
+                $_SESSION['attempts'] = $attempts;
+                $errorMessage = 'Incorrect verification code! Remaining attempts:' . (3 - $attempts);
             }
         } else {
             // If session information is missing, redirect to the index.php page.
@@ -47,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['2fa_code'] = $newCode;
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
