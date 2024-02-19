@@ -19,12 +19,8 @@ if (!isset($_SESSION['ban_timestamp'])) {
 // Funció que comprova si el usuari està banejat
 function isBanned()
 {
-    // Establim la duració del ban a segons (60 en aquest cas)
-    $banDuration = 60;
-
-    // Debugging: Imprimeix la marca de temps de la prohibició i l'hora actual
-    echo "Ban Timestamp: " . $_SESSION['ban_timestamp'] . "<br>";
-    echo "Current Time: " . time() . "<br>";
+    // Establim la duració del ban a segons (1 dia)
+    $banDuration = 86400;
 
     // Comprovem si el temps del ban està dins de la duració del ban 
     return (time() - $_SESSION['ban_timestamp']) < $banDuration;
