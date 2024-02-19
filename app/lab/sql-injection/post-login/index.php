@@ -28,7 +28,7 @@ while($obj = $result->fetch_object()){
 }
 
 elseif($mysqli->error){
-print($mysqli->error);
+
 }		
 	}	
 
