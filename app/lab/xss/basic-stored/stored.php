@@ -3,7 +3,15 @@ require("../../../lang/lang.php");
 $strings = tr();
 
 $db = new PDO('sqlite:database.db');
+session_start();
 
+if (isset($_SESSION['username'])) { // Verificar si hay una sesión activa
+  $username = htmlspecialchars($_SESSION['username']); // Escapar el nombre de usuario antes de mostrarlo en la página
+  echo "<h1>Welcome, $username!</h1>";
+} else {
+  header("Location: index.php");
+  exit;
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -25,29 +33,9 @@ $db = new PDO('sqlite:database.db');
       <h4>VULNLAB</h4>
 
       <form action="#" method="POST" style="text-align: center;margin-top: 20px;padding:30px;">
-        <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['logout']); ?></button> <!-- Botón de cierre de sesión -->
+        <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['logout']); ?></button>
       </form>
-
-                        echo '<div class="msg col-md-6 m-3 px-4 bg-primary text-wrap " style="border-radius: 20px; padding: 5px;width: fit-content;color: aliceblue;">';
-                        echo $cikti['content'];
-                        echo '</div>';
-                    }
-                }
-                #}
-
-            </div>
-            </div>
-            <div class="p-3 pb-0" style="text-align: center;">
-                <form action="#" method="POST" style="margin: 0;">
-                    <textarea placeholder="<?php echo $strings['message']; ?>" class="form-control" rows="3" name="mes"></textarea>
-                    <button type="submit" class="btn btn-primary m-3"><?php echo $strings['submit']; ?></button>
-                </form>
     </div>
-            <div class="p-3 pb-0" style="text-align: center;">
-                <form action="#" method="POST" style="margin: 0;">
-                    <textarea placeholder="<?php echo $strings['message']; ?>" class="form-control" rows="3" name="mes"></textarea>
-                    <button type="submit" class="btn btn-primary m-3"><?php echo $strings['submit']; ?></button>
-                </form>
   </div>
   <script id="VLBar" title="<?= htmlspecialchars($strings['title']) ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
 </body>

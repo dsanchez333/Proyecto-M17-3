@@ -18,10 +18,9 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     header("Location: stored.php");
     exit;
   } else {
-    echo '<h1>' . htmlspecialchars($strings['wrong_credentials']) . '</h1>'; // Escapar el mensaje de error
+    echo '<h1>wrong username or pass</h1>';
   }
 }
-
 ?>
 
 <!doctype html>
@@ -45,19 +44,19 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
 
       <form action="#" method="POST" style="text-align: center;margin-top: 20px;padding:30px;">
         <div class="row mb-3">
-          <label for="inputEmail3" class="col-sm-2 col-form-label"><?php echo htmlspecialchars($strings['user']); ?></label> <!-- Escapar la etiqueta del campo -->
+          <label for="inputEmail3" class="col-sm-2 col-form-label">User</label>
           <div class="col-sm-10">
             <input type="text" class="form-control" name="uname" id="inputEmail3">
           </div>
         </div>
         <div class="row mb-3">
-          <label for="inputPassword3" class="col-sm-2 col-form-label"><?php echo htmlspecialchars($strings['pass']); ?></label> <!-- Escapar la etiqueta del campo -->
+          <label for="inputPassword3" class="col-sm-2 col-form-label">Pass</label>
           <div class="col-sm-10">
-            <input type="password" class="form-control" name="passwd" id="inputPassword3"> <!-- Cambiar el tipo de input a "password" para ocultar la contraseña -->
+            <input type="password" class="form-control" name="passwd" id="inputPassword3">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['submit']); ?></button> <!-- Escapar el texto del botón -->
-        <p><?php echo htmlspecialchars($strings['default_creds']); ?></p> <!-- Escapar el mensaje -->
+        <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['submit']); ?></button>
+        <p>mandalorian / mandalorian </p>
       </form>
     </div>
   </div>
