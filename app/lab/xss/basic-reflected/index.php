@@ -22,15 +22,15 @@ $strings = tr();
     <?php
 
     if (isset($_GET['q'])) {
-      $q = htmlspecialchars($_GET['q']); // Escapar la entrada del usuario
+      $q = htmlspecialchars($_GET['q']); // Comprobar la entrada del usuario
       echo '<div class="alert alert-danger" style="margin-top: 30vh;" role="alert" >';
       echo '' . htmlspecialchars($strings['text']) . ' <b>' . $q . '</b> ';
-      echo '<a href="index.php">' . htmlspecialchars($strings['try']) . '</a>'; // Escapar el texto del enlace
+      echo '<a href="index.php">' . htmlspecialchars($strings['try']) . '</a>'; // Comprobar el texto del enlace
       echo "</div>";
     } else {
       echo '<form method="GET" action="#" style="margin-top: 30vh;" class="row g-3 col-md-6 row justify-content-center mx-auto">';
-      echo '<input class="form-control" type="text" placeholder="' . htmlspecialchars($strings['search']) . '" name="q">'; // Escapar el placeholder del input
-      echo '<button type="submit" class="col-md-3 btn btn-primary mb-3">' . htmlspecialchars($strings['s_button']) . '</button>'; // Escapar el texto del botón
+      echo '<input class="form-control" type="text" placeholder="' . htmlspecialchars($strings['search']) . '" name="q">'; // Comprobar el placeholder del input
+      echo '<button type="submit" class="col-md-3 btn btn-primary mb-3">' . htmlspecialchars($strings['s_button']) . '</button>'; // Comprobar el texto del botón
       echo '</form>';
     }
 
