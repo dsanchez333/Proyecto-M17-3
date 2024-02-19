@@ -4,10 +4,10 @@ $strings = tr();
 require("brute.php");
 
 
-// Initialize session for login attempts and ban timestamp
+// Inicialitzem la sessio dels intents de login i per fer el ban de temps
 session_start();
 
-// Check if login attempts and ban timestamp are set, if not, set them to default values
+// Comprovem si els intetns de login i de ban de temps estan establerts, si no, els establim a valors per defecte, 0 en el nostre cas
 if (!isset($_SESSION['login_attempts'])) {
     $_SESSION['login_attempts'] = 0;
 }
@@ -16,33 +16,33 @@ if (!isset($_SESSION['ban_timestamp'])) {
     $_SESSION['ban_timestamp'] = 0;
 }
 
-// Function to check if the user is banned
+// Funció que comprova si el usuari està banejat
 function isBanned()
 {
-    // Set the ban duration in seconds (1 minute in this case)
-    $banDuration = 60;
+    // Establim la duració del ban a segons (1 dia)
+    $banDuration = 86400;
 
-    // Check if the ban timestamp is within the ban duration
+    // Comprovem si el temps del ban està dins de la duració del ban 
     return (time() - $_SESSION['ban_timestamp']) < $banDuration;
 }
 
-// Function to check if login attempts exceed the limit
+// Funció que comprova si els intents de login han estat excedits
 function isBruteForceAttempt()
 {
-    // Set the maximum number of login attempts
+    // Establim un màxim d'intents per logejar-te
     $maxAttempts = 3;
 
-    // Increment login attempts
+    // Increment d'intents de login
     $_SESSION['login_attempts']++;
 
-    // Check if the user is banned
+    // Comprovem si l'usuari està banned
     if (isBanned()) {
         return true;
     }
 
-    // Check if login attempts exceed the limit
+    // Comprovem si els intents de login han excedit el limit
     if ($_SESSION['login_attempts'] > $maxAttempts) {
-        // Set the ban timestamp to the current time
+        // Estableix el temps de ban a l'hora actual 
         $_SESSION['ban_timestamp'] = time();
         return true;
     }
@@ -50,10 +50,10 @@ function isBruteForceAttempt()
     return false;
 }
 
-// Check for brute force attempts
+// Comprova els intents d'iniciar sessió (assegurem atacs de força bruta)
 if (isBruteForceAttempt()) {
-    // You can display a message or perform other actions here.
-    echo "Too many login attempts. Please try again later.";
+    // Missatge que mostrem per pantalla
+    echo "Masses intents! Torna-ho a provar en una estona.";
     exit();
 }
 ?>
