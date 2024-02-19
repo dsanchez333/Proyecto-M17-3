@@ -21,7 +21,6 @@ function isBanned()
 {
     // Establim la duració del ban a segons (1 dia)
     $banDuration = 86400;
-
     // Comprovem si el temps del ban està dins de la duració del ban 
     return (time() - $_SESSION['ban_timestamp']) < $banDuration;
 }

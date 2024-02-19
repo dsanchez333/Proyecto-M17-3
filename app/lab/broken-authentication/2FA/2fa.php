@@ -11,33 +11,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $attempts = $_SESSION['attempts'];
 
         if ($userEnteredCode == $correctCode) {
-            // Doğrulama kodu doğruysa, admin sayfasına yönlendir.
+            // If the verification code is correct, redirect to the admin page.
             header('Location: admin.php');
             exit();
         } else {
-            // Doğrulama kodu hatalı, deneme sayısını arttır.
+            // Incorrect verification code, increase the attempt count.
             $attempts++;
 
-            // 3 deneme hakkını aştıysa, index.php sayfasına yönlendir.
+            // If it exceeds 3 attempts, redirect to the index.php page.
+
             if ($attempts >= 3) {
                 header('Location: index.php');
                 exit();
             }
 
-            // Hatalı giriş sayısını oturumda sakla.
+            // Store the incorrect login attempts count in the session.
             $_SESSION['attempts'] = $attempts;
-            $errorMessage = 'Doğrulama kodu hatalı! Kalan deneme hakkınız: ' . (3 - $attempts);
+            $errorMessage = 'Incorrect verification code! Remaining attempts:' . (3 - $attempts);
         }
     } else {
-        // Oturum bilgileri eksikse, index.php sayfasına yönlendir.
+        // If session information is missing, redirect to the index.php page.
         header('Location: index.php');
         exit();
     }
 } else {
-    // Sayfa ilk defa yüklendiğinde deneme sayısını sıfırla.
+    // Reset the attempt count when the page is loaded for the first time.
     $_SESSION['attempts'] = 0;
 
-    // Yeni 2FA kodu oluştur ve kullanıcıya göster.
+    // Generate a new 2FA code and display it to the user.
     $newCode = rand(10000, 99999);
     $_SESSION['2fa_code'] = $newCode;
    
