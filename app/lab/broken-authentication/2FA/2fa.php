@@ -17,10 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($attempts >= 3) {
                 // If the user is banned after 3 attempts, set ban expiration time and show error message.
                 $_SESSION['ban_expiration'] = time() + 24 * 3600; // 24 hours ban
-                $errorMessage = 'Incorrect verification code! You are banned for 24 hours.';
-                
-                // Display the error message to the user.
-                echo $errorMessage;
+
+                //Enviem a la pagina ban.php
+                header('Location: ban.php');
                 
                 // Optionally, you can exit the script here to prevent further execution.
                 exit();
