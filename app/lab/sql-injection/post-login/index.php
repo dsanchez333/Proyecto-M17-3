@@ -43,7 +43,7 @@ if(isset($_POST['username']) && isset($_POST['password']) ){
 	}	else {
 		print("Parguela jajajajajja");
 	}
-
+}
 ?>
 
 <!DOCTYPE html>
