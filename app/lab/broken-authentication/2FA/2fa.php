@@ -4,35 +4,39 @@ $strings = tr();
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userEnteredCode = $_POST['verification_code'];
-
-    if (isset($_SESSION['2fa_code']) && isset($_SESSION['attempts'])) {
-        $correctCode = $_SESSION['2fa_code'];
-        $attempts = $_SESSION['attempts'];
-
-        if ($userEnteredCode == $correctCode) {
-            // If the verification code is correct, redirect to the admin page.
-            header('Location: admin.php');
-            exit();
-        } else {
-            // Incorrect verification code, increase the attempt count.
-            $attempts++;
-
-            // If it exceeds 3 attempts, redirect to the index.php page.
-
-            if ($attempts >= 3) {
-                header('Location: index.php');
-                exit();
-            }
-
-            // Store the incorrect login attempts count in the session.
-            $_SESSION['attempts'] = $attempts;
-            $errorMessage = 'Incorrect verification code! Remaining attempts:' . (3 - $attempts);
-        }
+    if (isset($_SESSION['ban_expiration']) && time() < $_SESSION['ban_expiration']) {
+        // User is still banned, you can handle this as needed.
+        $errorMessage = 'You are banned. Please try again later.';
     } else {
-        // If session information is missing, redirect to the index.php page.
-        header('Location: index.php');
-        exit();
+        $userEnteredCode = $_POST['verification_code'];
+
+        if (isset($_SESSION['2fa_code']) && isset($_SESSION['attempts'])) {
+            $correctCode = $_SESSION['2fa_code'];
+            $attempts = $_SESSION['attempts'];
+
+            if ($userEnteredCode == $correctCode) {
+                // If the verification code is correct, redirect to the admin page.
+                header('Location: admin.php');
+                exit();
+            } else {
+                // Incorrect verification code, increase the attempt count.
+                $attempts++;
+
+                // If it exceeds 3 attempts, ban the user for 24 hours.
+                if ($attempts >= 3) {
+                    $_SESSION['ban_expiration'] = time() + 24 * 3600; // 24 hours ban
+                    $errorMessage = 'Incorrect verification code! You are banned for 24 hours.';
+                } else {
+                    // Store the incorrect login attempts count in the session.
+                    $_SESSION['attempts'] = $attempts;
+                    $errorMessage = 'Incorrect verification code! Remaining attempts:' . (3 - $attempts);
+                }
+            }
+        } else {
+            // If session information is missing, redirect to the index.php page.
+            header('Location: index.php');
+            exit();
+        }
     }
 } else {
     // Reset the attempt count when the page is loaded for the first time.
@@ -41,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Generate a new 2FA code and display it to the user.
     $newCode = rand(10000, 99999);
     $_SESSION['2fa_code'] = $newCode;
-   
 }
 ?>
 
