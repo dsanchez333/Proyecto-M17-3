@@ -7,19 +7,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Kullanıcı adı ve şifre doğrulaması yapılır (örneğin sadece admin ve admin olarak kabul ediliyor)
+    // User authentication is performed (for example, only 'admin' as the username and 'admin' as the password are accepted).
     if ($username === 'admin' && $password === 'admin') {
         $randomCode = rand(10000, 99999);
 
-        // 2FA doğrulama kodu kullanıcıya gönderilir (örneğin burada oturumda saklanıyor)
+        // 2FA verification code is sent to the user (for example, stored in the session here).
         $_SESSION['2fa_code'] = $randomCode;
         $_SESSION['username'] = $username;
 
-        // 2FA doğrulama sayfasına yönlendirme yapılır
+        // Redirect to the 2FA verification page.
         header('Location: 2fa.php');
         exit();
     } else {
-        $errorMessage = 'Kullanıcı adı veya şifre hatalı!';
+        $errorMessage = 'Incorrect username or password!';
     }
 }
 ?>
