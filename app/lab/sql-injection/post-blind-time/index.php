@@ -5,16 +5,37 @@
 
     try {
         $db = new PDO('mysql:host=localhost; dbname=sql_injection', 'sql_injection', '');
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Configurar para que PDO lance excepciones en errores
     } catch (Exception $e) {
         echo $e;
     }
 
-    if ( isset($_POST['email']) ){
-
+    if (isset($_POST['email'])) {
         $email = $_POST['email'];
-        $user = $db -> query("SELECT * FROM users WHERE email = '{$email}'");  
-
-        $status="success";
+    
+        try {
+            // Preparar la consulta con un marcador de posición
+            $query = $db->prepare("SELECT * FROM users WHERE email = :email");
+            
+            // Vincular el valor del parámetro con el marcador de posición
+            $query->bindParam(':email', $email, PDO::PARAM_STR);
+            
+            // Ejecutar la consulta
+            $query->execute();
+            
+            // Obtener los resultados
+            $user = $query->fetch(PDO::FETCH_ASSOC);
+    
+            // Verificar si se encontraron resultados
+            if ($user) {
+                $status = "success";
+            } else {
+                $status = "failure";
+            }
+        } catch (PDOException $e) {
+            // Manejar errores de la consulta preparada
+            echo "Error: " . $e->getMessage();
+        }
     }
 
 ?>
