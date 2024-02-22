@@ -2,6 +2,8 @@
 require("../../../lang/lang.php");
 $strings = tr();
 
+ob_start(); // Start output buffering
+
 if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     $username = "mandalorian";
     $password = "mandalorian";
@@ -13,6 +15,8 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
         exit();
     }
 }
+
+ob_end_flush(); // Flush the output buffer and turn off output buffering
 ?>
 
 <!doctype html>
