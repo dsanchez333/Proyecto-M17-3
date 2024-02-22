@@ -7,10 +7,10 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     $password = "mandalorian";
     if ($username == $_POST['uname'] && $password == $_POST['passwd']) {
         header("Location: index.php");
-        exit(); // Make sure to stop further script execution after the redirect
+        exit();
     } else {
         header("Location: login.php");
-        exit(); // Make sure to stop further script execution after the redirect
+        exit();
     }
 }
 ?>
@@ -23,10 +23,10 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-
     <title><?php echo $strings['title']; ?></title>
+
+    <!-- Move the Bootstrap CSS link to the head -->
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
 </head>
 
 <body>
@@ -52,6 +52,8 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
             </form>
         </div>
     </div>
+
+    <!-- Move the script tag to the end of the body -->
     <script id="VLBar" title="<?= $strings['title'] ?>" category-id="10" src="/public/assets/js/vlnav.min.js"></script>
 </body>
 
