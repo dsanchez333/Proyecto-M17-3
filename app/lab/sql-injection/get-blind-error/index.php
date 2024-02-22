@@ -65,7 +65,7 @@ if (isset($_GET['img'])) {
 
                                 $error = $db->errorInfo();
                                 if (!empty($error[2])) {
-                                    echo $error[2];
+                                //Quitamos que salgan comentarios de error
                                 } else {
                                     $data = $user->fetch();
                                 }
