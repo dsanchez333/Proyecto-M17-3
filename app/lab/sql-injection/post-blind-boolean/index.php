@@ -25,14 +25,13 @@ if (isset($_POST['search'])) {
     } else {
         $result = "false";
     }
-    catch (PDOException $e) {
-        // Manejo de errores
-        echo "Error: " . $e->getMessage();
-    }
+    
 }
-
+catch (PDOException $e) {
+    // Manejo de errores
+    echo "Error: " . $e->getMessage();
 }
-
+}
 
 ?>
 <!DOCTYPE html>
