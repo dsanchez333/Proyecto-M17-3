@@ -6,14 +6,18 @@ $db = new PDO('sqlite:database.db');
 session_start();
 
 if (isset($_POST['uname']) && isset($_POST['passwd'])) {
+
   $q = $db->prepare("SELECT * FROM users WHERE username=:user AND password=:pass");
   $q->execute(array(
     'user' => $_POST['uname'],
     'pass' => $_POST['passwd']
   ));
-  $_select = $q->fetch();
-  if ($_select) { // Verificar si se encontró un usuario
-    $_SESSION['username'] = htmlspecialchars($_POST['uname']); // Escapar el nombre de usuario antes de almacenarlo en la sesión
+  $_select = $q -> fetch();
+  if ( isset($_select['id'])) {
+    $user = $q->fetch();
+
+    session_start();
+    $_SESSION['username'] = $_POST['uname'];
 
     header("Location: stored.php");
     exit;
@@ -21,7 +25,12 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     echo '<h1>wrong username or pass</h1>';
   }
 }
+
 ?>
+
+
+
+
 
 <!doctype html>
 <html lang="en">
@@ -34,7 +43,7 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
 
-  <title><?php echo htmlspecialchars($strings['title']); ?></title>
+  <title><?php echo $strings['title']; ?></title>
 </head>
 
 <body>
@@ -52,15 +61,17 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
         <div class="row mb-3">
           <label for="inputPassword3" class="col-sm-2 col-form-label">Pass</label>
           <div class="col-sm-10">
-            <input type="password" class="form-control" name="passwd" id="inputPassword3">
+            <input type="text" class="form-control" name="passwd" id="inputPassword3">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['submit']); ?></button>
+        <button type="submit" class="btn btn-primary"><?php echo $strings['submit']; ?></button>
         <p>mandalorian / mandalorian </p>
       </form>
+
+
     </div>
   </div>
-  <script id="VLBar" title="<?= htmlspecialchars($strings['title']) ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
+  <script id="VLBar" title="<?= $strings['title'] ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
 </body>
 
 </html>
