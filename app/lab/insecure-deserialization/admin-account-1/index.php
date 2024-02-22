@@ -1,33 +1,38 @@
 <?php
- 
+
 include("user.php");
 require("../../../lang/lang.php");
 $strings = tr();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-if( isset($_COOKIE['V2VsY29tZS1hZG1pbgo']) ){
-    try{
-    $user = unserialize( base64_decode( $_COOKIE['V2VsY29tZS1hZG1pbgo'] ));
-    }catch(Exception $e){
+if (isset($_COOKIE['V2VsY29tZS1hZG1pbgo'])) {
+    try {
+        $encodedUserData = base64_decode($_COOKIE['V2VsY29tZS1hZG1pbgo']);
+        $user = json_decode($encodedUserData, true);
+
+        if ($user === null) {
+            throw new Exception("Error decoding JSON data");
+        }
+    } catch (Exception $e) {
         header("Location: login.php?msg=3");
         exit;
-    } 
-    $text = "";
-    if( $user->username === "admin"){
-        $text = $strings['welcome-admin'];
-    } else if ( $user->username === "test"){
-        $text = $strings['welcome-test'];
-    }else{
-        $text =  $strings['welcome-another'];
     }
 
-}else{
+    $text = "";
+    if ($user['username'] === "admin") {
+        $text = $strings['welcome-admin'];
+    } else if ($user['username'] === "test") {
+        $text = $strings['welcome-test'];
+    } else {
+        $text = $strings['welcome-another'];
+    }
+} else {
     header("Location: login.php?msg=2");
     exit;
 }
-
 ?>
+
 
 
  
