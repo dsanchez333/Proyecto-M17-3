@@ -6,31 +6,29 @@ $db = new PDO('sqlite:database.db');
 session_start();
 
 if (isset($_POST['uname']) && isset($_POST['passwd'])) {
+  // Filtrar y escapar datos de entrada para evitar SQL Injection y XSS
+  $username = htmlspecialchars($_POST['uname']);
+  $password = htmlspecialchars($_POST['passwd']);
 
   $q = $db->prepare("SELECT * FROM users WHERE username=:user AND password=:pass");
   $q->execute(array(
-    'user' => $_POST['uname'],
-    'pass' => $_POST['passwd']
+    'user' => $username,
+    'pass' => $password
   ));
-  $_select = $q -> fetch();
-  if ( isset($_select['id'])) {
-    $user = $q->fetch();
-
-    session_start();
-    $_SESSION['username'] = $_POST['uname'];
+  $_select = $q->fetch();
+  if (isset($_select['id'])) {
+    // Eliminar la segunda llamada a session_start()
+    $_SESSION['username'] = $username;
 
     header("Location: stored.php");
     exit;
   } else {
-    echo '<h1>wrong username or pass</h1>';
+    // Mensaje de error seguro, escapado para evitar XSS
+    echo '<h1>' . htmlspecialchars('wrong username or pass') . '</h1>';
   }
 }
 
 ?>
-
-
-
-
 
 <!doctype html>
 <html lang="en">
@@ -43,7 +41,8 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
 
-  <title><?php echo $strings['title']; ?></title>
+  <!-- Título seguro, escapado para evitar XSS -->
+  <title><?php echo htmlspecialchars($strings['title']); ?></title>
 </head>
 
 <body>
@@ -55,23 +54,26 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
         <div class="row mb-3">
           <label for="inputEmail3" class="col-sm-2 col-form-label">User</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="uname" id="inputEmail3">
+            <!-- Escapar el valor del atributo value para evitar XSS -->
+            <input type="text" class="form-control" name="uname" id="inputEmail3" value="<?php echo htmlspecialchars(isset($_POST['uname']) ? $_POST['uname'] : ''); ?>">
           </div>
         </div>
         <div class="row mb-3">
           <label for="inputPassword3" class="col-sm-2 col-form-label">Pass</label>
           <div class="col-sm-10">
-            <input type="text" class="form-control" name="passwd" id="inputPassword3">
+            <!-- Escapar el valor del atributo value para evitar XSS -->
+            <input type="password" class="form-control" name="passwd" id="inputPassword3" value="<?php echo htmlspecialchars(isset($_POST['passwd']) ? $_POST['passwd'] : ''); ?>">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary"><?php echo $strings['submit']; ?></button>
-        <p>mandalorian / mandalorian </p>
+        <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['submit']); ?></button>
+        <!-- Mensaje seguro, escapado para evitar XSS -->
+        <p><?php echo htmlspecialchars('mandalorian / mandalorian'); ?></p>
       </form>
 
 
     </div>
   </div>
-  <script id="VLBar" title="<?= $strings['title'] ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
+  <script id="VLBar" title="<?= htmlspecialchars($strings['title']) ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
 </body>
 
 </html>
