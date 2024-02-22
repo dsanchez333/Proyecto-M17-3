@@ -10,11 +10,14 @@ if (isset($_POST['search'])) {
 
 
     try {
-        $query = $db->prepare("SELECT * FROM stocks WHERE name = '" . $search . "'");
-    } catch (PDOException $e) {
-    }
-    $query->execute();
-    $list = $query->fetch(PDO::FETCH_ASSOC);
+        // Utilizamos una consulta preparada con marcadores de posición (?)
+        $query = $db->prepare("SELECT * FROM stocks WHERE name = ?");
+        // Vinculamos el valor del marcador de posición con la variable $search
+        $query->bindParam(1, $search, PDO::PARAM_STR);
+        // Ejecutamos la consulta
+        $query->execute();
+        // Obtenemos el resultado
+        $list = $query->fetch(PDO::FETCH_ASSOC);
 
 
     if (!empty($list['name'])) {
@@ -22,6 +25,8 @@ if (isset($_POST['search'])) {
     } else {
         $result = "false";
     }
+}
+
 }
 
 
