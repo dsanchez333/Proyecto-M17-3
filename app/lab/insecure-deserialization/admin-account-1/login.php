@@ -1,32 +1,38 @@
 <?php
 
-require("user.php");
-require("db.php");
-require("../../../lang/lang.php");
-$strings = tr();
+	require("user.php");
+	require("db.php");
+    require("../../../lang/lang.php");
+	$strings = tr();
+ 
+	$db = new DB();
+	$users = $db->getUsersList();
+	
 
-$db = new DB();
-$users = $db->getUsersList();
+	if( isset( $_POST['username'] ) && isset( $_POST['password'] ) ){
+		
+		$username = $users[0]['username'];
+		$password = $users[0]['password'];
+ 
+		if( $username === $_POST['username'] && $password === $_POST['password'] ){
+		 
+			 
+			header("Location: index.php");
+			$user = new User($username,$password);
+			$serializedStr = serialize($user);
+			$extremeSecretCookie = base64_encode($serializedStr);
+			setcookie('V2VsY29tZS1hZG1pbgo',$extremeSecretCookie);
+			
+			header("Location: index.php");
+			exit;
+		}
+		else{
+			header("Location: login.php?msg=1");
+			exit;
+		}
+	}
 
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $users[0]['username'];
-    $password = $users[0]['password'];
-
-    if ($username === $_POST['username'] && $password === $_POST['password']) {
-        $user = new User($username, $password);
-        $serializedUserData = json_encode($user);
-        $extremeSecretCookie = base64_encode($serializedUserData);
-        setcookie('V2VsY29tZS1hZG1pbgo', $extremeSecretCookie);
-
-        header("Location: index.php");
-        exit;
-    } else {
-        header("Location: login.php?msg=1");
-        exit;
-    }
-}
 ?>
-
 
 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 <!------ Include the above in your HEAD tag ---------->
