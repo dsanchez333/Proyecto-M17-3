@@ -12,7 +12,7 @@ if (isset($_POST['search'])) {
     try {
         // Utilizamos una consulta preparada con marcadores de posición (?)
         $query = $db->prepare("SELECT * FROM stocks WHERE name = ?");
-        // Vinculamos el valor del marcador de posición con la variable $search
+        // Vinculamo el valor del marcador de posición con la variable $search
         $query->bindParam(1, $search, PDO::PARAM_STR);
         // Ejecutamos la consulta
         $query->execute();
