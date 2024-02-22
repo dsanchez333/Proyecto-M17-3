@@ -6,7 +6,6 @@ $db = new PDO('sqlite:database.db');
 session_start();
 
 if (isset($_POST['uname']) && isset($_POST['passwd'])) {
-
   $q = $db->prepare("SELECT * FROM users WHERE username=:user AND password=:pass");
   $q->execute(array(
     'user' => $_POST['uname'],
@@ -22,8 +21,8 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     echo '<h1>wrong username or pass</h1>';
   }
 }
-
 ?>
+
 <!doctype html>
 <html lang="en">
 
@@ -53,14 +52,12 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
         <div class="row mb-3">
           <label for="inputPassword3" class="col-sm-2 col-form-label">Pass</label>
           <div class="col-sm-10">
-            <input type="password" class="form-control" name="passwd" id="inputPassword3"> <!-- Cambiar el tipo de input a "password" para ocultar la contraseña -->
+            <input type="password" class="form-control" name="passwd" id="inputPassword3">
           </div>
         </div>
         <button type="submit" class="btn btn-primary"><?php echo htmlspecialchars($strings['submit']); ?></button>
         <p>mandalorian / mandalorian </p>
       </form>
-
-
     </div>
   </div>
   <script id="VLBar" title="<?= htmlspecialchars($strings['title']) ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
