@@ -1,48 +1,45 @@
 <?php
-session_start();
 
-// Verificar si el usuario ha iniciado sesión
-if (!isset($_SESSION['user_id'])) {
-    // Redirigir al usuario al formulario de inicio de sesión si no ha iniciado sesión
-    header("Location: login.php");
-    exit;
-}
+    require("../../../lang/lang.php");
+    $strings = tr();
 
-require("../../../lang/lang.php");
-$strings = tr();
+    $db = new PDO('sqlite:database.db');    
 
-$db = new PDO('sqlite:database.db');
+    $user_id = 1;
 
-$user_id = $_SESSION['user_id'];
+    $query = $db -> prepare("SELECT * FROM idor_changing_password WHERE id=:user_id");
+    $query -> execute(array(
+        'user_id' => $user_id
+    ));
+    $user_info = $query -> fetch();
+    $your_username = $user_info['username'];
 
-$query = $db->prepare("SELECT * FROM idor_changing_password WHERE id=:user_id");
-$query->execute(array(
-    'user_id' => $user_id
-));
-$user_info = $query->fetch();
-$your_username = $user_info['username'];
+    if( isset($_POST['password']) ){
 
-if (isset($_POST['password'])) {
-    // Verificar si el usuario está intentando cambiar su propia contraseña
-    if ($_POST['user_id'] != $user_id) {
-        // Mostrar un mensaje de error o redirigir a una página de error
-        $message0 = '<div class="alert alert-danger" role="alert">' . $strings['error_not_allowed'] . '</div>';
-    } else {
+        $query2 = $db -> prepare("SELECT * FROM idor_changing_password WHERE id=:user_id");
+        $query2 -> execute(array(
+            'user_id' => $_POST['user_id']
+        ));
+        $_user_info = $query2 -> fetch();; 
+        $changed_pass_username = $_user_info['username']; 
+
         $new_password = $_POST['password'];
-
-        $query3 = $db->prepare("UPDATE idor_changing_password SET password=:new_password WHERE id=:user_id");
-        $update = $query3->execute(array(
+        
+        $query3 = $db -> prepare("UPDATE idor_changing_password SET password=:new_password WHERE id=:user_id ");
+        $update = $query3 -> execute(array(
             'user_id' => $_POST['user_id'],
             'new_password' => $new_password
         ));
 
-        if ($update) {
-            $message1 = '<div class="alert alert-success" role="alert"><b>' . $strings['alert_success'] . '</b><br><hr>'
-                . '<b>' . $your_username . '</b>' . $strings['success_username'] . '<br>'
-                . '</div>';
+        if($update){
+            $message1 = '<div class="alert alert-success" role="alert"> <b>'.$strings['alert_success'].'</b> <br> <hr>'
+            .'<b>'.$changed_pass_username.'</b>'.$strings['success_username'].'<br>'
+            .'</div>';
         }
+    
     }
-}
+
+
 ?>
 
 
