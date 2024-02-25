@@ -5,7 +5,7 @@
 
     $db = new PDO('sqlite:database.db'); 
 
-    $user_id = 1;
+    $user_id;
 
     if( isset($_POST['view']) ){
         header("Location: index.php?invoice_id=$user_id");
