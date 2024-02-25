@@ -20,7 +20,8 @@
 
         header("Content-type: application/pdf");
         header("Content-Disposition: inline; filename=invoice.pdf");
-        @readfile($row['file_url']);
+        $file_content = file_get_contents($row['file_url']);
+        echo $file_content;
     }
 
 
