@@ -17,6 +17,7 @@
         $username = stripslashes($_POST['username']);
         $password = stripslashes($_POST['password']);
 
+
         $select = $db -> prepare("SELECT * FROM csrf_changing_password WHERE authority=:authority AND password=:password");
         $select -> execute(array('authority' => $username,'password' => $password));
         $_select = $select -> fetch();
@@ -28,7 +29,10 @@
         }else{
             $status = "unsuccess";
         }
+
+
     }
+
 ?>
 
 
@@ -92,6 +96,7 @@
                             .$strings['login_unsuccess'].
                             '</div>';
                         }
+
                     }
                     ?>
 

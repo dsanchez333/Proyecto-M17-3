@@ -21,40 +21,31 @@
     $selectAdmin -> execute(array('authority' => "admin"));
     $selectAdmin_Password = $selectAdmin -> fetch();
 
-    if( isset($_POST['new_password']) && isset($_POST['confirm_password']) && isset($_POST['csrf_token']) ){
-        // Verifying CSRF token
-        if ($_POST['csrf_token'] === $_SESSION['csrf_token']) {
-            if( $_POST['new_password'] == $_POST['confirm_password'] ){
+    if( isset($_GET['new_password']) && isset($_GET['confirm_password']) ){
+        if( $_GET['new_password'] == $_GET['confirm_password'] ){
 
-                $insert = $db -> prepare("UPDATE csrf_changing_password SET password=:password WHERE authority=:authority");
-                $status_insert = $insert -> execute(array(
-                    'authority' => $_SESSION['authority'],
-                    'password' => $_POST['new_password']
-                ));
+            $insert = $db -> prepare("UPDATE csrf_changing_password SET password=:password WHERE authority=:authority");
+            $status_insert = $insert -> execute(array(
+                'authority' => $_SESSION['authority'],
+                'password' => $_GET['new_password']
+            ));
 
-                if($status_insert){
-                    header("Location: index.php?status=success"); 
-                    exit;
-                }else{
-                    header("Location: index.php?status=unsuccess");
-                    exit;
-                }
-
-            }else{
-
-                header("Location: index.php?status=not_the_same");
+            if($status_insert){
+                header("Location: index.php?status=success"); 
                 exit;
-
+            }else{
+                header("Location: index.php?status=unsuccess");
+                exit;
             }
-        } else {
-            // Invalid CSRF token
-            header("Location: index.php?status=csrf_error");
+
+        }else{
+
+            header("Location: index.php?status=not_the_same");
             exit;
+
         }
     }
 
-    // Generate CSRF token
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 ?>
 
 
@@ -112,18 +103,12 @@
                             .$strings['alert_not_the_same'].
                             '</div>';
                         }
-                        if($_GET['status'] == "csrf_error"){
-                            echo '<div class="alert alert-danger mt-2" role="alert">'
-                            .$strings['alert_csrf_error'].
-                            '</div>';
-                        }
                     }
                 ?>
 
                     <h3 class="mb-3"><?= $strings['middle_title']; ?> <?= $_SESSION['authority']; ?></h3>
 
-                    <form action="index.php" method="post">
-                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <form action="index.php" method="get">
                         <div class="mb-3">
                             <label for="new_password" class="form-label"><?= $strings['new_password_input']; ?></label>
                             <input class="form-control" type="text" name="new_password" id="new_password"
@@ -183,7 +168,10 @@
     
                                 }
                             }
-                        }
+
+                                
+                            }
+
                     ?>
                 </div>
 
