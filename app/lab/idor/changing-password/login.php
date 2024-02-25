@@ -61,11 +61,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php if (isset($error_message)) echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>'; ?>
                 <form action="index.php" method="post">
                     <div class="mb-3">
-                        <label for="email" class="form-label"><?= $strings['email_label']; ?></label>
+                        <label for="email" class="form-label">Correo electrónico<?= $strings['email_label']; ?></label>
                         <input class="form-control" type="email" name="email" id="email" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label"><?= $strings['password_label']; ?></label>
+                        <label for="password" class="form-label">Contraseña<?= $strings['password_label']; ?></label>
                         <input class="form-control" type="password" name="password" id="password" required>
                     </div>
                     <div class="d-grid gap-2">
