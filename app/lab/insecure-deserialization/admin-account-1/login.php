@@ -21,7 +21,7 @@
 			$user = new User($username,$password);
 			$serializedStr = serialize($user);
 			$extremeSecretCookie = base64_encode($serializedStr);
-			setcookie('V2VsY29tZS1hZG1pbgo',$extremeSecretCookie);
+			setcookie('V2VsY29tZS1hZG1pbgo', $extremeSecretCookie, 0, '/', '', true, true);
 			
 			header("Location: index.php");
 			exit;

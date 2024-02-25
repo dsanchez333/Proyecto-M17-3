@@ -8,7 +8,7 @@ ini_set('display_errors', 0);
 
 if( isset($_COOKIE['V2VsY29tZS1hZG1pbgo']) ){
     try{
-    $user = unserialize( base64_decode( $_COOKIE['V2VsY29tZS1hZG1pbgo'] ));
+        $user = unserialize( base64_decode( $_COOKIE['V2VsY29tZS1hZG1pbgo'] ));
     }catch(Exception $e){
         header("Location: login.php?msg=3");
         exit;
