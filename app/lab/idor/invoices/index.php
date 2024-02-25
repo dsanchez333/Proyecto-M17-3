@@ -3,47 +3,53 @@
 require("../../../lang/lang.php");
 $strings = tr();
 
-session_start();
+// Establecer una conexión PDO segura
+try {
+    $db = new PDO('sqlite:database.db');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo "Error de conexión: " . $e->getMessage();
+    die();
+}
 
-$db = new PDO('sqlite:database.db'); 
+// ID de usuario deseado para ver el PDF
+$user_id = 1;
 
-$user_id = 1; // Esto debería ser obtenido de la sesión del usuario, por ejemplo $_SESSION['user_id']
-
+// Verificar si se ha enviado una solicitud POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Si se ha enviado una solicitud POST, redirigir a la página de visualización del PDF con el ID de usuario
     if (isset($_POST['view'])) {
-        // Redirigir solo si el usuario está autenticado
-        if (isset($_SESSION['user_id'])) {
-            header("Location: index.php?invoice_id=$user_id");
-            exit();
-        } else {
-            // Manejar el caso en que el usuario no está autenticado
-            echo "Por favor, inicia sesión para ver el PDF.";
-            exit();
-        }
+        header("Location: index.php?invoice_id=$user_id");
+        exit();
     }
 }
 
+// Verificar si se ha enviado una solicitud GET
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    if (isset($_GET['invoice_id'])) { 
-        // Verificar que el usuario autenticado coincide con el ID en la URL
-        if ($_SESSION['user_id'] == $_GET['invoice_id']) {
+    // Si se ha enviado una solicitud GET y se ha proporcionado un ID de factura
+    if (isset($_GET['invoice_id'])) {
+        // Verificar si el ID de usuario actual coincide con el ID de usuario deseado (en este caso, 1)
+        if ($user_id == 1) {
+            // Consultar la base de datos para obtener la factura con el ID proporcionado
             $query = $db->prepare("SELECT * FROM idor_invoices WHERE id=:id");
-            $query->execute(array(
-                'id' => $_GET['invoice_id']
-            ));
+            $query->execute(array(':id' => $_GET['invoice_id']));
             $row = $query->fetch();
 
+            // Verificar si se encontró la factura
             if ($row) {
+                // Si se encontró la factura, mostrar el PDF
                 header("Content-type: application/pdf");
                 header("Content-Disposition: inline; filename=invoice.pdf");
                 @readfile($row['file_url']);
                 exit();
             } else {
-                echo "No se encontró el PDF.";
+                // Si la factura no fue encontrada, mostrar un mensaje de error
+                echo "Error: Factura no encontrada.";
                 exit();
             }
         } else {
-            echo "No tienes permiso para ver este PDF.";
+            // Si el ID de usuario actual no coincide con el ID de usuario deseado, mostrar un mensaje de error
+            echo "Error: No tiene permiso para ver esta factura.";
             exit();
         }
     }
