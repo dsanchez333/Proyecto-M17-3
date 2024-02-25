@@ -3,64 +3,30 @@
     require("../../../lang/lang.php");
     $strings = tr();
 
-    // Establecer una conexión PDO segura
-    try {
-        $db = new PDO('sqlite:database.db');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        echo "Error de conexión: " . $e->getMessage();
-        die();
-    }
-        $user_id = 1;
+    $db = new PDO('sqlite:database.db'); 
 
-    
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        if (isset($_POST['view'])) {
-            $invoice_id = filter_input(INPUT_POST, 'invoice_id', FILTER_VALIDATE_INT);
-            if ($invoice_id !== false) {
-                header("Location: index.php?invoice_id=$invoice_id");
-                exit();
-            }
-        }
+    $user_id = 1;
+
+    if( isset($_POST['view']) ){
+        header("Location: index.php?invoice_id=$user_id");
     }
 
-    if ($_SERVER["REQUEST_METHOD"] === "GET") {
-        if (isset($_GET['invoice_id'])) {
-            $invoice_id = filter_input(INPUT_GET, 'invoice_id', FILTER_VALIDATE_INT);
-            if ($invoice_id !== false) {
-                try {
-                    $query = $db->prepare("SELECT * FROM idor_invoices WHERE id=:id");
-                    $query->execute(array(':id' => $invoice_id));
-                    $row = $query->fetch(PDO::FETCH_ASSOC);
+    if( isset($_GET['invoice_id']) ){ 
+        $query = $db -> prepare("SELECT * FROM idor_invoices WHERE id=:id");
+        $query -> execute(array(
+            'id' => $_GET['invoice_id']
+        ));
+        $row = $query -> fetch();
 
-                    if ($row) {
-                        // Realizar verificación de permisos antes de mostrar el archivo
-                        // Aquí deberías tener lógica para verificar si el usuario tiene permisos para ver la factura
-
-                        $file_path = $row['file_url'];
-
-                        if (file_exists($file_path) && is_readable($file_path)) {
-                            header("Content-type: application/pdf");
-                            header("Content-Disposition: inline; filename=invoice.pdf");
-                            readfile($file_path);
-                            exit();
-                        } else {
-                            echo "Archivo no encontrado o no se puede leer.";
-                        }
-                    } else {
-                        echo "Factura no encontrada.";
-                    }
-                } catch (PDOException $e) {
-                    echo "Error al acceder a la base de datos: " . $e->getMessage();
-                }
-            } else {
-                echo "ID de factura no válido.";
-            }
-        }
+        header("Content-type: application/pdf");
+        header("Content-Disposition: inline; filename=invoice.pdf");
+        @readfile($row['file_url']);
     }
 
 
 ?>
+
+
 
 
 <!DOCTYPE html>
