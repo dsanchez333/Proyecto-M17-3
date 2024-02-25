@@ -1,30 +1,64 @@
 <?php
 
-    require("../../../lang/lang.php");
-    $strings = tr();
+require("../../../lang/lang.php");
+$strings = tr();
 
-    $db = new PDO('sqlite:database.db'); 
+// Establecer una conexión PDO segura
+try {
+    $db = new PDO('sqlite:database.db');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo "Error de conexión: " . $e->getMessage();
+    die();
+}
 
-    $user_id;
-
-    if( isset($_POST['view']) ){
-        header("Location: index.php?invoice_id=$user_id");
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['view'])) {
+        // Validar y obtener el ID de la factura
+        $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
+        if ($user_id !== false) {
+            // Redirigir con el ID de la factura
+            header("Location: index.php?invoice_id=$user_id");
+            exit();
+        }
     }
+}
 
-    if( isset($_GET['invoice_id']) ){ 
-        $query = $db -> prepare("SELECT * FROM idor_invoices WHERE id=:id");
-        $query -> execute(array(
-            'id' => $_GET['invoice_id']
-        ));
-        $row = $query -> fetch();
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (isset($_GET['invoice_id'])) {
+        // Validar y obtener el ID de la factura
+        $invoice_id = filter_input(INPUT_GET, 'invoice_id', FILTER_VALIDATE_INT);
+        if ($invoice_id !== false) {
+            try {
+                // Consultar la base de datos para obtener la factura
+                $query = $db->prepare("SELECT * FROM idor_invoices WHERE id=:id");
+                $query->execute(array(':id' => $invoice_id));
+                $row = $query->fetch(PDO::FETCH_ASSOC);
 
-        header("Content-type: application/pdf");
-        header("Content-Disposition: inline; filename=invoice.pdf");
-        @readfile($row['file_url']);
+                if ($row) {
+                    // Realizar verificación de permisos antes de mostrar la factura
+                    // Esto podría implicar verificar si el usuario tiene permisos para acceder a esta factura específica
+                    // y si el usuario tiene permisos para ver facturas en general
+
+                    // Si el usuario tiene permiso, mostrar la factura
+                    header("Content-type: application/pdf");
+                    header("Content-Disposition: inline; filename=invoice.pdf");
+                    readfile($row['file_url']);
+                    exit();
+                } else {
+                    echo "Factura no encontrada.";
+                }
+            } catch (PDOException $e) {
+                echo "Error al acceder a la base de datos: " . $e->getMessage();
+            }
+        } else {
+            echo "ID de factura no válido.";
+        }
     }
-
+}
 
 ?>
+
 
 
 
