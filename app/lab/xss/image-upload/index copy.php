@@ -5,6 +5,7 @@ $strings = tr();
 $db = new PDO('sqlite:database.db');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+
 $img_pth = $db->prepare("SELECT * FROM images WHERE username=:user");
 $img_pth->execute(array(
     'user' => "mandalorian",
@@ -64,7 +65,8 @@ if(isset($_POST["submit"])) {
         <div class="container-wrapper">
             <div class="row pt-5 mt-5 mb-3 d-flex justify-content-center">
                 <div class="row col-md-4 text-center d-flex justify-content-center shadow-lg p-3 mb-5 rounded">
-                    <img src="<?php echo htmlspecialchars($path['path']); ?>" style="width: 300px;margin-top: 8px;" class="rounded-circle" alt="" srcset="">
+                    <img src="<?php echo $path['path'] ?>
+                            " style="width: 300px;margin-top: 8px;" class="rounded-circle" alt="" srcset="">
                     <form action="#" method="post" enctype="multipart/form-data">
                         <div class="">
                             <label for="input_image" class="form-label mt-1"><?php echo $strings['text']; ?></label>
@@ -116,4 +118,7 @@ if(isset($_POST["submit"])) {
         </div>
 
     </div>
-    <script id="VLBar"
+    <script id="VLBar" title="<?= $strings['title']; ?>" category-id="1" src="/public/assets/js/vlnav.min.js"></script>
+</body>
+
+</html>
