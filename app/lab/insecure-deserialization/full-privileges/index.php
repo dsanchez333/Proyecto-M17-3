@@ -12,8 +12,14 @@ $user;
 
 if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
     try {
-        $user = unserialize(urldecode(base64_decode($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])));
-        checkCookieIntegrity($user);
+        list($userHash, $cookieState) = explode('|', $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg']);
+        
+        if ($cookieState === hash('sha256', $userHash)) {
+            $user = unserialize(urldecode(base64_decode($userHash)));
+            checkCookieIntegrity($user);
+        } else {
+            redirectToLogin();
+        }
     } catch (Exception $e) {
         redirectToLogin();
     }
@@ -34,9 +40,7 @@ function isValidCookie($user) {
     // Lógica para verificar la validez de la cookie (puedes personalizar esto según tus necesidades)
     // Retorna true si la cookie es válida, false de lo contrario
     // Aquí puedes comparar algún valor dentro del objeto $user con la cookie actual
-    
-    // Verificamos si el nombre de usuario coincide con el almacenado en la cookie
-    return $user->username === $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'];
+    return true;
 }
 
 function redirectToLogin() {
