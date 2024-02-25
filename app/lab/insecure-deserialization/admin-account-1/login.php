@@ -1,36 +1,45 @@
 <?php
 
-	require("user.php");
-	require("db.php");
-    require("../../../lang/lang.php");
-	$strings = tr();
- 
-	$db = new DB();
-	$users = $db->getUsersList();
-	
+require("user.php");
+require("db.php");
+require("../../../lang/lang.php");
 
-	if( isset( $_POST['username'] ) && isset( $_POST['password'] ) ){
-		
-		$username = $users[0]['username'];
-		$password = $users[0]['password'];
- 
-		if( $username === $_POST['username'] && $password === $_POST['password'] ){
-		 
-			 
-			header("Location: index.php");
-			$user = new User($username,$password);
-			$serializedStr = serialize($user);
-			$extremeSecretCookie = base64_encode($serializedStr);
-			setcookie('V2VsY29tZS1hZG1pbgo',$extremeSecretCookie);
-			
-			header("Location: index.php");
-			exit;
-		}
-		else{
-			header("Location: login.php?msg=1");
-			exit;
-		}
-	}
+$strings = tr();
+$db = new DB();
+$users = $db->getUsersList();
+
+if (isset($_POST['username']) && isset($_POST['password'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Busca el usuario en la lista
+    $user = findUser($users, $username);
+
+    if ($user !== null && password_verify($password, $user['password'])) {
+        // Autenticación exitosa
+        $userObject = new User($user['username'], $user['password']);
+        $serializedStr = base64_encode(serialize($userObject));
+
+        // Asegúrate de que la cookie sea segura y solo accesible mediante HTTPS
+        setcookie('V2VsY29tZS1hZG1pbgo', $serializedStr, 0, '/', '', true, true);
+
+        header("Location: index.php");
+        exit;
+    } else {
+        header("Location: login.php?msg=1");
+        exit;
+    }
+}
+
+// Función para buscar un usuario en la lista
+function findUser($users, $username) {
+    foreach ($users as $user) {
+        if ($user['username'] === $username) {
+            return $user;
+        }
+    }
+    return null;
+}
 
 ?>
 
