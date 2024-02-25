@@ -1,36 +1,36 @@
 <?php
 
-	require("user.php");
-	require("db.php");
-    require("../../../lang/lang.php");
-	$strings = tr();
- 
-	$db = new DB();
-	$users = $db->getUsersList();
-	
+require("user.php");
+require("db.php");
+require("../../../lang/lang.php");
 
-	if( isset( $_POST['username'] ) && isset( $_POST['password'] ) ){
-		
-		$username = $users[0]['username'];
-		$password = $users[0]['password'];
- 
-		if( $username === $_POST['username'] && $password === $_POST['password'] ){
-		 
-			 
-			header("Location: index.php");
-			$user = new User($username,$password);
-			$serializedStr = serialize($user);
-			$extremeSecretCookie = base64_encode($serializedStr);
-			setcookie('V2VsY29tZS1hZG1pbgo', $extremeSecretCookie, 0, '/', '', true, true);
-			
-			header("Location: index.php");
-			exit;
-		}
-		else{
-			header("Location: login.php?msg=1");
-			exit;
-		}
-	}
+$strings = tr();
+
+$db = new DB();
+$users = $db->getUsersList();
+
+if (isset($_POST['username']) && isset($_POST['password'])) {
+
+    $username = $users[0]['username'];
+    $password = $users[0]['password'];
+
+    if ($username === $_POST['username'] && $password === $_POST['password']) {
+
+        // Generate a secure token
+        $token = bin2hex(random_bytes(32));
+
+        // Store the token in a session
+        session_start();
+        $_SESSION['auth_token'] = $token;
+
+        // Redirect to the home page
+        header("Location: index.php");
+        exit;
+    } else {
+        header("Location: login.php?msg=1");
+        exit;
+    }
+}
 
 ?>
 
