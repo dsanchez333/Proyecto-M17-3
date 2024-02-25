@@ -28,11 +28,10 @@ if (!isset($_SESSION['id'])) {
     }
 }
 
-
 ?>
 
 <!DOCTYPE html>
-<html lang=<?php echo $strings['lang']; ?> >
+<html lang="<?php echo $strings['lang']; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +44,6 @@ if (!isset($_SESSION['id'])) {
         <h1 class="mb-4"><?php echo $strings['labtitle']; ?> </h1>
 
         <button type="button" class="btn btn-secondary mt-2" onclick="resetImages()"><?php echo $strings['resetlab'] ?></button>
-
 
         <!-- Image Upload Form -->
         <form id="uploadForm" enctype="multipart/form-data" class="mb-4">
@@ -120,56 +118,20 @@ if (!isset($_SESSION['id'])) {
 
         // Handle form submission
         function submitForm() {
-            const formData = new FormData(document.getElementById('uploadForm'));
+            const fileNameInput = document.getElementById('image');
+            const fileName = fileNameInput.files[0].name;
 
-            fetch('api/upload.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("<?php echo $strings['success1']; ?>");
-                    fetchImages();
-                } else {
-                    alert("<?php echo $strings['uploaderr']; ?>");
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
+            // Validar que el nombre de archivo contiene solo caracteres alfanuméricos
+            if (/^[a-zA-Z0-9]+$/.test(fileName)) {
+                const formData = new FormData(document.getElementById('uploadForm'));
 
-        function deleteImage(image) {
-            fetch('api/delete_image.php?image=' + encodeURIComponent(image), {
-                method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("<?php echo $strings['success2']; ?>");
-                    fetchImages();
-                } else {
-                    alert("<?php echo $strings['deleteerr']; ?>");
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function resetImages() {
-            fetch('api/reset_images.php')
+                fetch('api/upload.php', {
+                    method: 'POST',
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('<?php echo $strings['reset']; ?>');
+                        alert("<?php echo $strings['success1']; ?>");
                         fetchImages();
                     }
-                })
-                .catch(error => console.error('Hata:', error));
-        }
-
-
-        // Initial fetch to display uploaded images on page load
-        fetchImages();
-    </script>
-     <script id="VLBar" title="<?= $strings['title'] ?>" category-id="13" src="/public/assets/js/vlnav.min.js"></script>
-</body>
-</html>
