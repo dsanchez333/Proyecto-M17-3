@@ -35,7 +35,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
             $serializedStr = serialize($userData);
 
             // Calcular la firma HMAC
-            $secretKey = "tu_clave_secreta_aqui"; // Reemplaza esto con tu clave secreta
+            $secretKey = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p"; // Reemplaza esto con tu clave secreta
             $signature = hash_hmac('sha256', $serializedStr, $secretKey);
 
             // Crear la cookie con la firma HMAC

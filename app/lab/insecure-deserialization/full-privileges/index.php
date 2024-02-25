@@ -12,7 +12,7 @@ if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
     $cookieValue = $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'];
 
     // Verificar la integridad de la cookie usando HMAC
-    $secretKey = "tu_clave_secreta_aqui"; // Reemplaza esto con tu clave secreta
+    $secretKey = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p"; // Reemplaza esto con tu clave secreta
     list($userData, $signature) = explode(':', $cookieValue);
     
     // Calcular la firma HMAC
