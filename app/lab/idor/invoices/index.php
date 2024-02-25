@@ -1,35 +1,53 @@
 <?php
 
-    require("../../../lang/lang.php");
-    $strings = tr();
+require("../../../lang/lang.php");
+$strings = tr();
 
-    $db = new PDO('sqlite:database.db'); 
+session_start();
 
-    $sql = “SELECT * FROM users WHERE email=?;“; //Declaraciones para conectarse a la db
-    $stmt = mysqli_stmt_init($conn);
-    mysqli_stmt_bind_param($stmt, “s”, $email);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $_SESSION[‘uid’] = $row[‘uid’];
-    $user_id = $_SESSION[‘uid’];
-    $user_info = get_user_info($user_id);
+$db = new PDO('sqlite:database.db'); 
 
-    if( isset($_POST['view']) ){
-        header("Location: index.php?invoice_id=$user_id");
+$user_id = 1; // Esto debería ser obtenido de la sesión del usuario, por ejemplo $_SESSION['user_id']
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['view'])) {
+        // Redirigir solo si el usuario está autenticado
+        if (isset($_SESSION['user_id'])) {
+            header("Location: index.php?invoice_id=$user_id");
+            exit();
+        } else {
+            // Manejar el caso en que el usuario no está autenticado
+            echo "Por favor, inicia sesión para ver el PDF.";
+            exit();
+        }
     }
+}
 
-    if( isset($_GET['invoice_id']) ){ 
-        $query = $db -> prepare("SELECT * FROM idor_invoices WHERE id=:id");
-        $query -> execute(array(
-            'id' => $_GET['invoice_id']
-        ));
-        $row = $query -> fetch();
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    if (isset($_GET['invoice_id'])) { 
+        // Verificar que el usuario autenticado coincide con el ID en la URL
+        if ($_SESSION['user_id'] == $_GET['invoice_id']) {
+            $query = $db->prepare("SELECT * FROM idor_invoices WHERE id=:id");
+            $query->execute(array(
+                'id' => $_GET['invoice_id']
+            ));
+            $row = $query->fetch();
 
-        header("Content-type: application/pdf");
-        header("Content-Disposition: inline; filename=invoice.pdf");
-        @readfile($row['file_url']);
+            if ($row) {
+                header("Content-type: application/pdf");
+                header("Content-Disposition: inline; filename=invoice.pdf");
+                @readfile($row['file_url']);
+                exit();
+            } else {
+                echo "No se encontró el PDF.";
+                exit();
+            }
+        } else {
+            echo "No tienes permiso para ver este PDF.";
+            exit();
+        }
     }
-
+}
 
 ?>
 
