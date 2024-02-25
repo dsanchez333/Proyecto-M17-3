@@ -11,18 +11,34 @@
         header("Location: index.php?invoice_id=$user_id");
     }
 
-    if( isset($_GET['invoice_id']) ){ 
-        $query = $db -> prepare("SELECT * FROM idor_invoices WHERE id=:id");
-        $query -> execute(array(
-            'id' => $_GET['invoice_id']
-        ));
-        $row = $query -> fetch();
-
-        header("Content-type: application/pdf");
-        header("Content-Disposition: inline; filename=invoice.pdf");
-        @readfile($row['file_url']);
+    if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['invoice_id'])) {
+        $user_id = $_GET['invoice_id'];
+    
+        // Validar que el usuario tenga permiso para ver esta factura
+    
+        $query = $db->prepare("SELECT * FROM idor_invoices WHERE id = :id");
+        $query->execute(array(':id' => $user_id));
+        $row = $query->fetch();
+    
+        if ($row) {
+            // Guardar el contenido del archivo en una variable
+            $file_content = file_get_contents($row['file_url']);
+    
+            // Configurar las cabeceras para descargar el archivo
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="invoice.pdf"');
+    
+            // Enviar el archivo al cliente
+            echo $file_content;
+    
+            // Eliminar el archivo temporal (opcional, si se desea)
+            // unlink($row['file_url']); // Descomenta esta línea para eliminar el archivo temporal
+    
+            exit();
+        } else {
+            echo "Error: Factura no encontrada.";
+        }
     }
-
 
 ?>
 
