@@ -1,5 +1,4 @@
 <?php
-
 include("user.php");
 include("permission.php");
 require("../../../lang/lang.php");
@@ -7,27 +6,36 @@ error_reporting(0);
 ini_set('display_errors', 0);
 $strings = tr();
 $user;
-if( isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg']) ){
-   
+
+// Verificar si la cookie existe
+if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
+    $cookieValue = $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'];
+
+    // Verificar la integridad de la cookie usando HMAC
+    $secretKey = "tu_clave_secreta_aqui"; // Reemplaza esto con tu clave secreta
+    list($userData, $signature) = explode(':', $cookieValue);
     
-    
-    try{
-    $user = unserialize( urldecode( base64_decode ( $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'] ) ));
-    }catch(Exception $e){
-        header("Location: login.php?msg=3");
+    // Calcular la firma HMAC
+    $expectedSignature = hash_hmac('sha256', $userData, $secretKey);
+
+    // Verificar si la firma es válida
+    if ($signature === $expectedSignature) {
+        // La cookie es válida, continuar con el código actual
+        try {
+            $user = unserialize(urldecode(base64_decode($userData)));
+        } catch (Exception $e) {
+            header("Location: login.php?msg=3");
+        }
+    } else {
+        // La cookie ha sido modificada, redirigir al usuario a login.php
+        header("Location: login.php?msg=4");
+        exit();
     }
-   
-
-}else{
+} else {
+    // Si no hay cookie, redirigir a login.php
     header("Location: login.php?msg=2");
+    exit();
 }
-
-
-function canDo($action,$strings){
-    
-    return $action === 1 ? $strings['yes-sir'] : $strings['no-sir'];
-}
-
 ?>
 
 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
