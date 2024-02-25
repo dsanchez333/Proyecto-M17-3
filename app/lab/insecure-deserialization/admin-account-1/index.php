@@ -1,41 +1,35 @@
 <?php
-
+ 
 include("user.php");
 require("../../../lang/lang.php");
-
 $strings = tr();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-session_start();
-
-if (isset($_COOKIE['V2VsY29tZS1hZG1pbgo'])) {
-    try {
-        $user = unserialize(base64_decode($_COOKIE['V2VsY29tZS1hZG1pbgo']));
-    } catch (Exception $e) {
+if( isset($_COOKIE['V2VsY29tZS1hZG1pbgo']) ){
+    try{
+    $user = unserialize( base64_decode( $_COOKIE['V2VsY29tZS1hZG1pbgo'] ));
+    }catch(Exception $e){
         header("Location: login.php?msg=3");
         exit;
-    }
-
-    // Validate user credentials or any other necessary checks
-    // You might want to fetch user information from a database and compare it here
-
-    $_SESSION['user'] = $user; // Store user object in session for later use
-
+    } 
     $text = "";
-    if ($user->username === "admin") {
+    if( $user->username === "admin"){
         $text = $strings['welcome-admin'];
-    } else if ($user->username === "test") {
+    } else if ( $user->username === "test"){
         $text = $strings['welcome-test'];
-    } else {
+    }else{
         $text =  $strings['welcome-another'];
     }
-} else {
+
+}else{
     header("Location: login.php?msg=2");
     exit;
 }
 
 ?>
+
+
  
 <!------ Include the above in your HEAD tag ---------->
 
