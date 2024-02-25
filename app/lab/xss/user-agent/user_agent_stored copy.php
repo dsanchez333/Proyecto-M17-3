@@ -15,7 +15,7 @@ if (!isset($_SESSION['username'])) {
 
 $uname = $_SESSION['username'];
 
-$UserAgent = htmlspecialchars($_SERVER['HTTP_USER_AGENT']); // Escapar el User-Agent para prevenir XSS
+$UserAgent = $_SERVER['HTTP_USER_AGENT'];
 
 $q = $db->prepare("INSERT INTO user_agent (username,useragent) VALUES (:user,:usragent)");
 $q->execute(array(
@@ -79,8 +79,8 @@ $q->execute(array(
 
                     while ($cikti = $q->fetch(PDO::FETCH_ASSOC)) {
                         echo '<tr>';
-                        echo '<td>' . htmlspecialchars($cikti['username']) . '</td>'; // Escapar el nombre de usuario
-                        echo '<td>' . htmlspecialchars($cikti['useragent']) . '</td>'; // Escapar el agente de usuario
+                        echo '<td>' . $cikti['username'] . '</td>';
+                        echo '<td>' . $cikti['useragent'] . '</td>';
                         echo '</tr>';
                     }
                     echo '</table>';
