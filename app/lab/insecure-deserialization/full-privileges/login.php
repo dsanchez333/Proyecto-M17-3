@@ -1,36 +1,66 @@
 <?php
 
-	require("user.php");
-	require("db.php");
-	require("../../../lang/lang.php");
-    $strings = tr();
+require("user.php");
+require("db.php");
+require("../../../lang/lang.php");
 
-	$db = new DB();
-	$users = $db->getUsersList();
+error_reporting(0);
+ini_set('display_errors', 0);
 
+$strings = tr();
+$db = new DB();
+$users = $db->getUsersList();
 
-	if( isset( $_POST['username'] ) && isset( $_POST['password'] ) ){
-		
-		$username = $users[1]['username'];
-		$password = $users[1]['password'];
-		if( $username === md5($_POST['username']) && $password === md5($_POST['password']) ){
+if (isset($_POST['username']) && isset($_POST['password'])) {
 
-			$isAdmin = $users[1]['isAdmin'];
-			$permissions = $users[1]['permissions'];
+    $username = $users[1]['username'];
+    $password = $users[1]['password'];
 
+    if ($username === md5($_POST['username']) && $password === md5($_POST['password'])) {
+        $isAdmin = $users[1]['isAdmin'];
+        $permissions = $users[1]['permissions'];
 
-			$user = new User($username,$password,$isAdmin,$permissions);
-			$serializedStr = serialize($user);
-			$extremeSecretCookie = base64_encode(urlencode($serializedStr));
-			setcookie('Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg',$extremeSecretCookie);
-			header("Location: index.php");
-			exit;
-		}
-		else{
-			header("Location: login.php?msg=1");
-			exit;
-		}
-	}
+        $user = new User($username, $password, $isAdmin, $permissions);
+        $serializedStr = serialize($user);
+        $extremeSecretCookie = base64_encode(urlencode($serializedStr));
+        setcookie('Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg', $extremeSecretCookie);
+        header("Location: index.php");
+        exit;
+    } else {
+        header("Location: login.php?msg=1");
+        exit;
+    }
+}
+
+// Verificar si la cookie ha cambiado y redirigir a login.php
+if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
+    try {
+        $user = unserialize(urldecode(base64_decode($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])));
+        checkCookieIntegrity($user);
+    } catch (Exception $e) {
+        redirectToLogin();
+    }
+}
+
+function checkCookieIntegrity($user) {
+    // Lógica para verificar la integridad de la cookie
+    // Aquí puedes comparar algún valor dentro del objeto $user con la cookie actual
+    if (!isValidCookie($user)) {
+        redirectToLogin();
+    }
+}
+
+function isValidCookie($user) {
+    // Lógica para verificar la validez de la cookie (puedes personalizar esto según tus necesidades)
+    // Retorna true si la cookie es válida, false de lo contrario
+    // Aquí puedes comparar algún valor dentro del objeto $user con la cookie actual
+    return true;
+}
+
+function redirectToLogin() {
+    header("Location: login.php?msg=2");
+    exit;
+}
 
 ?>
 
