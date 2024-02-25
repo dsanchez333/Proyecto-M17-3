@@ -1,45 +1,49 @@
 <?php
-    require("../../../lang/lang.php");
-    $strings = tr();
-    
-    if( isset($_POST['submit']) ){
+require("../../../lang/lang.php");
+$strings = tr();
 
-        $tmpName = $_FILES['input_image']['tmp_name'];
-        $fileName = $_FILES['input_image']['name'];
+if(isset($_POST['submit'])) {
+    $tmpName = $_FILES['input_image']['tmp_name'];
+    $fileName = $_FILES['input_image']['name'];
 
-        if(!empty($fileName)){
-
-            $extensions = array("php");
+    if(!empty($fileName)) {
+        // Obtener la extensión del archivo
+        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
         
-            if(!file_exists("uploads")){
-                mkdir("uploads");
+        // Validar la extensión del archivo
+        $allowedExtensions = array("gif", "png", "jpeg");
+        if(in_array($fileExtension, $allowedExtensions)) {
+            // Directorio de carga seguro
+            $uploadDirectory = "uploads/";
+            if(!file_exists($uploadDirectory)) {
+                mkdir($uploadDirectory);
             }
-    
-            $uploadPath = "uploads/".$fileName;
             
-            if( mime_content_type($tmpName) == "image/gif" || mime_content_type($tmpName) == "image/png" || mime_content_type($tmpName) == "image/jpeg" ){
-    
-                if( @move_uploaded_file($tmpName,$uploadPath) ){
+            // Generar un nombre de archivo único
+            $uniqueFileName = uniqid() . '_' . $fileName;
+            $uploadPath = $uploadDirectory . $uniqueFileName;
+
+            // Validar que sea una imagen
+            $imageInfo = getimagesize($tmpName);
+            if($imageInfo !== false) {
+                // Mover el archivo cargado al directorio de carga seguro
+                if(@move_uploaded_file($tmpName, $uploadPath)) {
                     $status = "success";
-                    
-                }else{
+                } else {
                     $status = "unsuccess";
                 }
-    
-            }else{
+            } else {
                 $status = "blocked";
             }
-
-        }else{
-            $status = "empty";
+        } else {
+            $status = "invalid_extension";
         }
-
-
-
+    } else {
+        $status = "empty";
     }
-
-
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">

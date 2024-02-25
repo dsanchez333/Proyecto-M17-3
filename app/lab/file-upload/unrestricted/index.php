@@ -1,31 +1,37 @@
 <?php
-    require("../../../lang/lang.php");
-    $strings = tr();
+require("../../../lang/lang.php");
+$strings = tr();
 
-    if( isset($_POST['submit']) ){
+if( isset($_POST['submit']) ){
+    $tmpName = $_FILES['input_image']['tmp_name'];
+    $fileName = $_FILES['input_image']['name'];
+    $fileSize = $_FILES['input_image']['size'];
+    $fileType = $_FILES['input_image']['type'];
 
-        $tmpName = $_FILES['input_image']['tmp_name'];
-        $fileName = $_FILES['input_image']['name'];
-
-        if(!empty($fileName)){
-            if(!file_exists("uploads")){
-                mkdir("uploads");
-            }
-    
-            $uploadPath = "uploads/".$fileName;
-    
-            if( @move_uploaded_file($tmpName,$uploadPath) ){
-                $status = "success";
-                
-            }else{
-                $status = "unsuccess";
-            }
-        }else{
-            $status = "empty";
+    // 1. Limitar tipos de archivo permitidos
+    $allowedExtensions = array("gif", "jpg", "jpeg", "png");
+    $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    if(!in_array($fileExtension, $allowedExtensions)){
+        $status = "invalid_extension";
+    } elseif ($fileSize > 1000000) { // 2. Verificar el tamaño del archivo (1MB)
+        $status = "file_too_large";
+    } else {
+        if(!file_exists("uploads")){
+            mkdir("uploads");
         }
 
+        // 3. Cambiar el nombre del archivo cargado
+        $newFileName = uniqid() . '.' . $fileExtension;
+        $uploadPath = "uploads/" . $newFileName;
 
+        // 4. Almacenar los archivos fuera del directorio web raíz
+        if(move_uploaded_file($tmpName, $uploadPath)){
+            $status = "success";
+        } else {
+            $status = "unsuccess";
+        }
     }
+}
 
 ?>
 
