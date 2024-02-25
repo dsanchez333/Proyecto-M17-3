@@ -7,24 +7,21 @@ error_reporting(0);
 ini_set('display_errors', 0);
 $strings = tr();
 $user;
-if( isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg']) ){
-   
-    
-    
-    try{
-    $user = unserialize( urldecode( base64_decode ( $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'] ) ));
-    }catch(Exception $e){
-        header("Location: login.php?msg=3");
-    }
-   
 
-}else{
+if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
+    try {
+        $user = unserialize(urldecode(base64_decode($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])));
+    } catch (Exception $e) {
+        header("Location: login.php?msg=3");
+        exit;
+    }
+} else {
     header("Location: login.php?msg=2");
+    exit;
 }
 
-
-function canDo($action,$strings){
-    
+function canDo($action, $strings)
+{
     return $action === 1 ? $strings['yes-sir'] : $strings['no-sir'];
 }
 
