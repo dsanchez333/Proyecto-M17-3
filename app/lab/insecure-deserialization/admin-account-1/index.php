@@ -1,5 +1,4 @@
 <?php
-
 include("user.php");
 require("../../../lang/lang.php");
 $strings = tr();
@@ -12,8 +11,16 @@ $secretKey = 'your_secret_key_here';
 if (isset($_COOKIE['V2VsY29tZS1hZG1pbgo'])) {
     try {
         // Decrypt and verify the cookie using the secret key
-        $user = unserialize(base64_decode($_COOKIE['V2VsY29tZS1hZG1pbgo']));
-        $signature = hash_hmac('sha256', $_COOKIE['V2VsY29tZS1hZG1pbgo'], $secretKey);
+        $cookieValue = $_COOKIE['V2VsY29tZS1hZG1pbgo'];
+        $signature = hash_hmac('sha256', $cookieValue, $secretKey);
+        $user = unserialize(base64_decode($cookieValue));
+
+        // Debugging information - remove this in production
+        echo "Received Cookie Value: " . $cookieValue . "<br>";
+        echo "Calculated Signature: " . $signature . "<br>";
+        echo "Stored Signature: " . $user->signature . "<br>";
+        echo "User Object:<br>";
+        print_r($user);
 
         if (!hash_equals($user->signature, $signature)) {
             // If the signature doesn't match, redirect to login page
@@ -21,6 +28,9 @@ if (isset($_COOKIE['V2VsY29tZS1hZG1pbgo'])) {
             exit;
         }
     } catch (Exception $e) {
+        // Debugging information - remove this in production
+        echo "Exception: " . $e->getMessage() . "<br>";
+
         header("Location: login.php?msg=3");
         exit;
     }
@@ -37,7 +47,6 @@ if (isset($_COOKIE['V2VsY29tZS1hZG1pbgo'])) {
     header("Location: login.php?msg=2");
     exit;
 }
-
 ?>
 
 <!------ Include the above in your HEAD tag ---------->
