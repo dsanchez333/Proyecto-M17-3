@@ -10,6 +10,11 @@ ini_set('display_errors', 0);
 $strings = tr();
 $user;
 
+function redirectToLogin() {
+    header("Location: login.php?msg=2");
+    exit;
+}
+
 if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
     try {
         $user = unserialize(urldecode(base64_decode($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])));
@@ -18,11 +23,6 @@ if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
     }
 } else {
     redirectToLogin();
-}
-
-function redirectToLogin() {
-    header("Location: login.php?msg=2");
-    exit;
 }
 
 function canDo($action, $strings) {
