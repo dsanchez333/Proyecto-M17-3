@@ -37,10 +37,7 @@ $strings = tr();
 					$input = $_POST["ip"];
 					echo "<br /><br />";
 
-					// Escapamos el valor del parámetro ip
-					$escaped_input = escapeshellcmd($input);
-
-					exec("ping -c5 $escaped_input", $out);
+					exec("ping -c5 $input", $out);
 					if (!empty($out)) {
 
 						echo '<div class="mt-5 alert alert-primary" role="alert" style=" width:500px;" > <strong>  <p style="text-align:center;">';
