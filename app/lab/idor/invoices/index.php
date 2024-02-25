@@ -1,39 +1,35 @@
 <?php
 
-require("../../../lang/lang.php");
-$strings = tr();
+    require("../../../lang/lang.php");
+    $strings = tr();
 
-// Establecer una conexión PDO segura
-try {
-    $db = new PDO('sqlite:database.db');
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    echo "Error de conexión: " . $e->getMessage();
-    die();
-}
+    $db = new PDO('sqlite:database.db'); 
 
-// Verificar si se envió un formulario con la clave
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['key'])) {
-    $key_entered = $_POST['key'];
-    
-    // Consultar la base de datos para verificar si la clave es válida
-    $query = $db->prepare("SELECT * FROM access_keys WHERE `key` = :key");
-    $query->execute(array(':key' => $key_entered));
-    $row = $query->fetch(PDO::FETCH_ASSOC);
-    
-    if ($row) {
-        // Si la clave es válida, redirigir al usuario a la página con la factura
-        header("Location: index.php?invoice_id=1"); // Cambiar 1 por el ID de la factura que desees mostrar
-        exit();
-    } else {
-        // Si la clave no es válida, mostrar un mensaje de error
-        echo "Clave incorrecta. Por favor, inténtalo de nuevo.";
-        exit();
+    $_SESSION[‘uid’] = $row[‘uid’];
+    $user_id = $_SESSION[‘uid’];
+    $user_info = get_user_info($user_id);
+
+    if( isset($_POST['view']) ){
+        header("Location: index.php?invoice_id=$user_id");
     }
-}
 
-// Si se accede directamente a la página sin la clave, mostrar el formulario para ingresar la clave
+    if( isset($_GET['invoice_id']) ){ 
+        $query = $db -> prepare("SELECT * FROM idor_invoices WHERE id=:id");
+        $query -> execute(array(
+            'id' => $_GET['invoice_id']
+        ));
+        $row = $query -> fetch();
+
+        header("Content-type: application/pdf");
+        header("Content-Disposition: inline; filename=invoice.pdf");
+        @readfile($row['file_url']);
+    }
+
+
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">
@@ -72,14 +68,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['key'])) {
 
                     <h3 class="mb-3"><?= $strings['middle_title']; ?></h3>
 
-                    <!-- Formulario para ingresar la clave -->
                     <form action="" method="post">
-                        <div class="mb-3">
-                            <label for="key" class="form-label">Clave de acceso:</label>
-                            <input type="password" class="form-control" id="key" name="key" required>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" type="submit" name="view"><?= $strings['button']; ?></button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Acceder</button>
                     </form>
+
 
                 </div>
                 <div class="col-md-3"></div>
