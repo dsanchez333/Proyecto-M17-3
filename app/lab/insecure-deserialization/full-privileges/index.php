@@ -10,19 +10,36 @@ ini_set('display_errors', 0);
 $strings = tr();
 $user;
 
-function redirectToLogin() {
-    header("Location: login.php?msg=2");
-    exit;
-}
-
 if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
     try {
         $user = unserialize(urldecode(base64_decode($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])));
+        checkCookieIntegrity($user);
     } catch (Exception $e) {
         redirectToLogin();
     }
 } else {
     redirectToLogin();
+}
+
+function checkCookieIntegrity($user) {
+    // Aquí puedes agregar lógica adicional para verificar la integridad de la cookie si es necesario
+    // Por ejemplo, podrías comparar algún valor dentro del objeto $user con la cookie actual
+    // Si la cookie no es válida, redirige a login.php
+    if (!isValidCookie($user)) {
+        redirectToLogin();
+    }
+}
+
+function isValidCookie($user) {
+    // Lógica para verificar la validez de la cookie (puedes personalizar esto según tus necesidades)
+    // Retorna true si la cookie es válida, false de lo contrario
+    // Aquí puedes comparar algún valor dentro del objeto $user con la cookie actual
+    return true;
+}
+
+function redirectToLogin() {
+    header("Location: login.php?msg=2");
+    exit;
 }
 
 function canDo($action, $strings) {
