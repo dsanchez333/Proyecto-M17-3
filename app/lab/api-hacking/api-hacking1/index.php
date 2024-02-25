@@ -12,21 +12,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-$foundUser = null;
-foreach ($users as $user) {
-    if ($user['username'] === $username && $user['password'] === $password) {
-        $foundUser = $user;
-        break;
+    // Validar que el nombre de usuario y la contraseña contengan solo caracteres alfanuméricos
+    if (preg_match('/^[a-zA-Z0-9]+$/', $username) && preg_match('/^[a-zA-Z0-9]+$/', $password)) {
+
+        $foundUser = null;
+        foreach ($users as $user) {
+            if ($user['username'] === $username && $user['password'] === $password) {
+                $foundUser = $user;
+                break;
+            }
+        }
+
+        if ($foundUser) {
+            $_SESSION['username'] = $foundUser['username'];
+            header('Location: dashboard.php');
+            exit;
+        } else {
+            $errorMessage = $strings['incorrect'];
+        }
+    } else {
+        $errorMessage = $strings['invalid_characters'];
     }
-}
-if ($foundUser) {
-    
-    $_SESSION['username'] = $foundUser['username'];
-    header('Location: dashboard.php');
-    exit;
-} else {
-    $errorMessage = $strings['incorrect'];
-}
 }
 ?>
 
