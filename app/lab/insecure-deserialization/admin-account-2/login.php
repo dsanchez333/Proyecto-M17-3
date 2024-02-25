@@ -8,23 +8,19 @@
 	$db = new DB();
 	$users = $db->getUsersList();
 
-
-	if( isset( $_POST['username'] ) && isset( $_POST['password'] ) ){
-		
+	if (isset($_POST['username']) && isset($_POST['password'])) {
 		$username = $users[1]['username'];
 		$password = $users[1]['password'];
 		$isAdmin = $users[1]['isAdmin'];
-	 
-		if( $username === md5($_POST['username']) && $password === md5($_POST['password']) ){
 
-			$user = new User($username,$password,$isAdmin);
-			$serializedStr = serialize($user);
+		if ($username === md5($_POST['username']) && $password === md5($_POST['password'])) {
+			$user = new User($username, $password, $isAdmin);
+			$serializedStr = json_encode($user);
 			$extremeSecretCookie = base64_encode(urlencode($serializedStr));
-			setcookie('d2VsY29tZS1hZG1pbmlzdHJhdG9y',$extremeSecretCookie);
+			setcookie('d2VsY29tZS1hZG1pbmlzdHJhdG9y', $extremeSecretCookie);
 			header("Location: index.php");
 			exit;
-		}
-		else{
+		} else {
 			header("Location: login.php?msg=1");
 			exit;
 		}
