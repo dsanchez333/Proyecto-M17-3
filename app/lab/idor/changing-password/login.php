@@ -1,80 +1,58 @@
 <?php
-session_start(); // Iniciar sesión si no está iniciada
+session_start();
 
-// Verificar si el usuario ya inició sesión
+// Verificar si el usuario ya está autenticado, si es así, redirigir a index.php
 if (isset($_SESSION['user_id'])) {
-    // Si ya inició sesión, redirigirlo a index.php o cualquier otra página de inicio
     header("Location: index.php");
     exit;
 }
 
-require("../../../lang/lang.php");
-$strings = tr();
-
-$db = new PDO('sqlite:database.db');
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = $_POST['email'];
+// Verificar si se ha enviado el formulario de inicio de sesión
+if (isset($_POST['username']) && isset($_POST['password'])) {
+    // Validar las credenciales del usuario en la base de datos (sustituir con tu lógica de autenticación)
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Consultar la base de datos para verificar las credenciales
-    $query = $db->prepare("SELECT * FROM users WHERE email = :email AND password = :password");
-    $query->execute(array(
-        'email' => $email,
-        'password' => $password // En una aplicación real, es importante usar hash de contraseñas en lugar de almacenarlas en texto plano
-    ));
-    $user = $query->fetch();
+    // Aquí deberías realizar la validación con tu base de datos
+    // Si las credenciales son válidas, iniciar sesión y generar un token único
+    // Por ejemplo:
+    if ($username === 'usuario' && $password === 'contraseña') {
+        // Generar un token único para el usuario
+        $token = bin2hex(random_bytes(32));
 
-    if ($user) {
-        // Si las credenciales son válidas, iniciar sesión y redirigir al usuario a index.php
-        $_SESSION['user_id'] = $user['id'];
+        // Iniciar sesión y guardar el ID de usuario y el token
+        $_SESSION['user_id'] = 1; // ID de usuario obtenido de la base de datos
+        $_SESSION['token'] = $token;
+
+        // Redirigir a index.php
         header("Location: index.php");
         exit;
     } else {
         // Si las credenciales no son válidas, mostrar un mensaje de error
-        $error_message = $strings['login_error'];
+        $error = "Usuario o contraseña incorrectos";
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="<?= $strings['lang']; ?>">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $strings['login_title']; ?></title>
-    <link rel="stylesheet" href="bootstrap.min.css">
+    <title>Login</title>
 </head>
 <body>
-    <div class="container">
-        <div class="row pt-5 mt-5 mb-3">
-            <div class="col-md-3"></div>
-            <div class="col-md-6">
-                <h1><?= $strings['login_title']; ?></h1>
-            </div>
-            <div class="col-md-3"></div>
-        </div>
-        <div class="row pt-2">
-            <div class="col-md-3"></div>
-            <div class="col-md-6">
-                <?php if (isset($error_message)) echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>'; ?>
-                <form action="index.php" method="post">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Correo electrónico<?= $strings['email_label']; ?></label>
-                        <input class="form-control" type="email" name="email" id="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña<?= $strings['password_label']; ?></label>
-                        <input class="form-control" type="password" name="password" id="password" required>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-primary" type="submit"><?= $strings['login_button']; ?></button>
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-3"></div>
-        </div>
-    </div>
+    <h1>Login</h1>
+    <?php if (isset($error)) : ?>
+        <p><?= $error ?></p>
+    <?php endif; ?>
+    <form action="login.php" method="post">
+        <label for="username">Usuario:</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Contraseña:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Iniciar sesión">
+    </form>
 </body>
 </html>
