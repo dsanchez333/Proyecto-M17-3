@@ -1,32 +1,32 @@
 <?php
 
-require("user.php");
-require("db.php");
-require("../../../lang/lang.php");
-$strings = tr();
+	require("user.php");
+	require("db.php");
+	require("../../../lang/lang.php");
+    $strings = tr();
 
-$db = new DB();
-$users = $db->getUsersList();
+	$db = new DB();
+	$users = $db->getUsersList();
 
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $users[1]['username'];
-    $password = $users[1]['password'];
-    $isAdmin = $users[1]['isAdmin'];
+	if (isset($_POST['username']) && isset($_POST['password'])) {
+		$username = $users[1]['username'];
+		$password = $users[1]['password'];
+		$isAdmin = $users[1]['isAdmin'];
 
-    if ($username === md5($_POST['username']) && $password === md5($_POST['password'])) {
-        $user = new User($username, $password, $isAdmin);
-        $serializedUserData = json_encode($user);
-        $extremeSecretCookie = base64_encode(urlencode($serializedUserData));
-        setcookie('d2VsY29tZS1hZG1pbmlzdHJhdG9y', $extremeSecretCookie);
-        header("Location: index.php");
-        exit;
-    } else {
-        header("Location: login.php?msg=1");
-        exit;
-    }
-}
+		if ($username === md5($_POST['username']) && $password === md5($_POST['password'])) {
+			$user = new User($username, $password, $isAdmin);
+			$serializedStr = json_encode($user);
+			$extremeSecretCookie = base64_encode(urlencode($serializedStr));
+			setcookie('d2VsY29tZS1hZG1pbmlzdHJhdG9y', $extremeSecretCookie);
+			header("Location: index.php");
+			exit;
+		} else {
+			header("Location: login.php?msg=1");
+			exit;
+		}
+	}
+
 ?>
-
 
 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 <!------ Include the above in your HEAD tag ---------->

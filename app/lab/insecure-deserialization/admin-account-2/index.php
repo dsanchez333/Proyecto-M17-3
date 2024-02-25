@@ -9,13 +9,16 @@ ini_set('display_errors', 0);
 if (isset($_COOKIE['d2VsY29tZS1hZG1pbmlzdHJhdG9y'])) {
     $user;
     try {
-        $encodedUserData = base64_decode(urldecode($_COOKIE['d2VsY29tZS1hZG1pbmlzdHJhdG9y']));
-        $user = json_decode($encodedUserData);
-
-        if ($user === null) {
-            throw new Exception("Error decoding JSON data");
-        }
+        $user = json_decode(urldecode(base64_decode($_COOKIE['d2VsY29tZS1hZG1pbmlzdHJhdG9y'])));
     } catch (Exception $e) {
+        header("Location: login.php?msg=3");
+        exit;
+    }
+
+    // Verificar la validez de la información en la cookie
+    $isValidUser = isset($user->username) && isset($user->isAdmin);
+
+    if (!$isValidUser) {
         header("Location: login.php?msg=3");
         exit;
     }
@@ -40,8 +43,8 @@ if (isset($_COOKIE['d2VsY29tZS1hZG1pbmlzdHJhdG9y'])) {
     header("Location: login.php?msg=2");
     exit;
 }
-?>
 
+?>
 
 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 <!------ Include the above in your HEAD tag ---------->
