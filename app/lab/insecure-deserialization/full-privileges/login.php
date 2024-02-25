@@ -1,38 +1,58 @@
 <?php
 
-	require("user.php");
-	require("db.php");
-	require("../../../lang/lang.php");
-    $strings = tr();
+require("user.php");
+require("db.php");
+require("../../../lang/lang.php");
 
-	$db = new DB();
-	$users = $db->getUsersList();
+$strings = tr();
 
+$db = new DB();
+$users = $db->getUsersList();
 
-	if( isset( $_POST['username'] ) && isset( $_POST['password'] ) ){
-		
-		$username = $users[1]['username'];
-		$password = $users[1]['password'];
-		if( $username === md5($_POST['username']) && $password === md5($_POST['password']) ){
+// Verificar si ya hay una cookie válida
+if (isset($_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'])) {
+    header("Location: index.php");
+    exit();
+}
 
-			$isAdmin = $users[1]['isAdmin'];
-			$permissions = $users[1]['permissions'];
+if (isset($_POST['username']) && isset($_POST['password'])) {
+    $inputUsername = md5($_POST['username']);
+    $inputPassword = md5($_POST['password']);
 
+    // Verificar las credenciales ingresadas en la lista de usuarios
+    foreach ($users as $user) {
+        if ($user['username'] === $inputUsername && $user['password'] === $inputPassword) {
+            $isAdmin = $user['isAdmin'];
+            $permissions = $user['permissions'];
 
-			$user = new User($username,$password,$isAdmin,$permissions);
-			$serializedStr = serialize($user);
-			$extremeSecretCookie = base64_encode(urlencode($serializedStr));
-			setcookie('Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg',$extremeSecretCookie);
-			header("Location: index.php");
-			exit;
-		}
-		else{
-			header("Location: login.php?msg=1");
-			exit;
-		}
-	}
+            $userData = array(
+                'username' => $user['username'],
+                'password' => $user['password'],
+                'isAdmin' => $isAdmin,
+                'permissions' => $permissions
+            );
 
+            $serializedStr = serialize($userData);
+
+            // Calcular la firma HMAC
+            $secretKey = "1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p"; // Reemplaza esto con tu clave secreta
+            $signature = hash_hmac('sha256', $serializedStr, $secretKey);
+
+            // Crear la cookie con la firma HMAC
+            $extremeSecretCookie = $serializedStr . ':' . $signature;
+            setcookie('Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg', $extremeSecretCookie);
+
+            header("Location: index.php");
+            exit;
+        }
+    }
+
+    // Si las credenciales no coinciden con ningún usuario, redirigir a login.php con mensaje de error
+    header("Location: login.php?msg=1");
+    exit;
+}
 ?>
+
 
 
 <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
