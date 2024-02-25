@@ -34,7 +34,9 @@ function isValidCookie($user) {
     // Lógica para verificar la validez de la cookie (puedes personalizar esto según tus necesidades)
     // Retorna true si la cookie es válida, false de lo contrario
     // Aquí puedes comparar algún valor dentro del objeto $user con la cookie actual
-    return true;
+    
+    // Verificamos si el nombre de usuario coincide con el almacenado en la cookie
+    return $user->username === $_COOKIE['Z3JhbnQtZnVsbC1wcml2aWxpZ2VzCg'];
 }
 
 function redirectToLogin() {
