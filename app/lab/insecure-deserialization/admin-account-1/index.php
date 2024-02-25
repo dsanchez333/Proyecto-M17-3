@@ -1,33 +1,35 @@
 <?php
- 
+
 include("user.php");
 require("../../../lang/lang.php");
 $strings = tr();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-if( isset($_COOKIE['V2VsY29tZS1hZG1pbgo']) ){
-    try{
-    $user = unserialize( base64_decode( $_COOKIE['V2VsY29tZS1hZG1pbgo'] ));
-    }catch(Exception $e){
+if (isset($_COOKIE['V2VsY29tZS1hZG1pbgo'])) {
+    try {
+        $jsonStr = base64_decode($_COOKIE['V2VsY29tZS1hZG1pbgo']);
+        $userData = json_decode($jsonStr, true); // The true parameter returns an associative array
+        $user = new User($userData['username'], $userData['password']);
+    } catch (Exception $e) {
         header("Location: login.php?msg=3");
         exit;
-    } 
+    }
     $text = "";
-    if( $user->username === "admin"){
+    if ($user->username === "admin") {
         $text = $strings['welcome-admin'];
-    } else if ( $user->username === "test"){
+    } else if ($user->username === "test") {
         $text = $strings['welcome-test'];
-    }else{
+    } else {
         $text =  $strings['welcome-another'];
     }
-
-}else{
+} else {
     header("Location: login.php?msg=2");
     exit;
 }
 
-?> 
+?>
+
     <!------ Include the above in your HEAD tag ---------->
 
     <!DOCTYPE html><html lang='en' class=''>
