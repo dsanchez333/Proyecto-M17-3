@@ -1,43 +1,49 @@
 <?php
-    require("../../../lang/lang.php");
-    $strings = tr();
-    
-    if( isset($_POST['submit']) ){
+require("../../../lang/lang.php");
+$strings = tr();
 
-        $tmpName = $_FILES['input_image']['tmp_name'];
-        $fileName = $_FILES['input_image']['name'];
+if(isset($_POST['submit'])) {
+    $tmpName = $_FILES['input_image']['tmp_name'];
+    $fileName = $_FILES['input_image']['name'];
 
-        if(!empty($fileName)){
-            $fileType = $_FILES['input_image']['type']; //MIME Type
-        
-            $extensions = array("php");
-    
-            if(!file_exists("uploads")){
+    if(!empty($fileName)) {
+        // Obtiene la extensión del archivo
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        // Lista blanca de tipos MIME permitidos
+        $allowedMimeTypes = array(
+            'image/gif' => 'gif',
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png'
+        );
+
+        // Obtiene el tipo MIME real del archivo
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $fileMimeType = finfo_file($finfo, $tmpName);
+        finfo_close($finfo);
+
+        // Verifica si el tipo MIME está en la lista blanca
+        if(isset($allowedMimeTypes[$fileMimeType]) && $allowedMimeTypes[$fileMimeType] == $fileExtension) {
+            if(!file_exists("uploads")) {
                 mkdir("uploads");
             }
-            
-            $uploadPath = "uploads/".$fileName;
-    
-            if( $fileType == "image/gif" || $fileType == "image/jpeg" || $fileType == "image/png"){
-    
-                if( @move_uploaded_file($tmpName,$uploadPath) ){
-                    $status = "success";
-                    
-                }else{
-                    $status = "unsuccess";
-                }
-    
-            }else{
-                $status = "blocked";
+
+            $uploadPath = "uploads/" . $fileName;
+
+            if(@move_uploaded_file($tmpName, $uploadPath)) {
+                $status = "success";
+            } else {
+                $status = "unsuccess";
             }
-        }else{
-            $status = "empty";
+        } else {
+            $status = "blocked";
         }
-
-
+    } else {
+        $status = "empty";
     }
-
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">
