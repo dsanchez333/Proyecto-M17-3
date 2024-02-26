@@ -2,7 +2,6 @@
 
 header("Location:login.php");
 
-
 ?>
 <!--SUCCESS !!!!!!!!!!!!!! -->
 <!--SUCCESS !!!!!!!!!!!!!! -->

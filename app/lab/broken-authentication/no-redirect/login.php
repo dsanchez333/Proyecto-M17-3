@@ -9,10 +9,10 @@ if (isset($_POST['uname']) && isset($_POST['passwd'])) {
     $password = "mandalorian";
     if ($username == $_POST['uname'] && $password == $_POST['passwd']) {
         header("Location: index.php");
-        exit();
+        exit(); // Ensure no further code is executed
     } else {
         header("Location: login.php");
-        exit();
+        exit(); // Ensure no further code is executed
     }
 }
 
