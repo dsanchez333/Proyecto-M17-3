@@ -59,6 +59,8 @@ if (isset($_POST['email'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
     <title><?php echo "Race Condition" ?></title>
+   
+    
 </head>
 <body>
 
@@ -71,16 +73,49 @@ if (isset($_POST['email'])) {
         <h2><?php echo $strings['information']; ?></h2>
 
         <form action="index.php" method="post">
-            <!-- Resto del formulario -->
-        </form>
+    <div class="row mb-3">
+        <label class="col-sm-5 col-form-label"><?php echo $strings['name']; ?>:</label>
+        <div class="col-sm-5">
+            <input type="text" name="ad" class="form-control" required>
+        </div>
+    </div>
 
+    <div class="row mb-3">
+        <label class="col-sm-5 col-form-label"><?php echo $strings['surname']; ?>:</label>
+        <div class="col-sm-5">
+            <input type="text" name="soyad" class="form-control" required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-5 col-form-label"><?php echo $strings['email']; ?>:</label>
+        <div class="col-sm-5">
+            <input type="email" name="email" class="form-control" required>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label class="col-sm-5 col-form-label"><?php echo $strings['phone']; ?>:</label>
+        <div class="col-sm-5">
+            <input type="number" name="tel" class="form-control" required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" value="<?php echo $strings['register']; ?>">
+    </div>
+</form>
+
+
+      
         <div style="margin-top: 10px;"></div>
 
         <a href="kayitlar.php" class="btn btn-danger btn-primary-sm"><?php echo $strings['registers']; ?></a>
     </div>
 </div>
 
-<script id="VLBar" title="<?= $strings["title"]; ?>" category-id="11" src="/public/assets/js/vlnav.min.js"></script>
+
+
+    <script id="VLBar" title="<?= $strings["title"]; ?>" category-id="11" src="/public/assets/js/vlnav.min.js"></script>
 </body>
 </html>
-
