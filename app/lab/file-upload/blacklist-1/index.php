@@ -2,43 +2,41 @@
     require("../../../lang/lang.php");
     $strings = tr();
     
-    if( isset($_POST['submit']) ){
-
+    if(isset($_POST['submit'])) {
         $tmpName = $_FILES['input_image']['tmp_name'];
         $fileName = $_FILES['input_image']['name'];
         
-        if(!empty($fileName)){
+        if(!empty($fileName)) {
+            // Lista negra de extensiones no permitidas
+            $blacklistedExtensions = array('php', 'exe', 'bat', 'js');
+            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            
+            // Obtener el tipo MIME del archivo
+            $fileType = mime_content_type($tmpName);
+            
+            // Verificar si la extensión o el tipo MIME están en la lista negra
+            if(in_array($fileExtension, $blacklistedExtensions) || 
+               !preg_match('/^image\/(jpeg|png|gif)$/', $fileType)) {
+                $status = "blocked";
+            } else {
+                // Generar un nombre de archivo aleatorio para evitar sobrescribir archivos existentes
+                $randomName = uniqid().'.'.$fileExtension;
+                $uploadPath = "uploads/".$randomName;
 
-            $fileExt = pathinfo($fileName)['extension'];
-            $extensions = array("php");
-    
-            if(!file_exists("uploads")){
-                mkdir("uploads");
-            }
-    
-            $uploadPath = "uploads/".$fileName;
-    
-            if( !in_array($fileExt,$extensions) && trim($fileName) != ".htaccess"){
-    
-                if( @move_uploaded_file($tmpName,$uploadPath) ){
+                // Mover el archivo cargado a un directorio seguro
+                if(@move_uploaded_file($tmpName, $uploadPath)) {
                     $status = "success";
-                    
-                }else{
+                } else {
                     $status = "unsuccess";
                 }
-    
-            }else{
-                $status = "blocked";
             }
-
-        }else{
+        } else {
             $status = "empty";
         }
-
-
     }
-
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">
