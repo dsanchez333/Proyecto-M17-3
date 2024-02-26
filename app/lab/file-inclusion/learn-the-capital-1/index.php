@@ -27,11 +27,11 @@
                         <div class="mb-3">
                             <label for="country" class="form-label"><?php echo $strings['label']; ?></label>
                             <select name="country" id="country" class="form-select">
-                                <option value="france.php"><?php echo $strings['paris']; ?></option>
-                                <option value="germany.php"><?php echo $strings['berlin']; ?></option>
-                                <option value="north_korea.php"><?php echo $strings['pyongyang']; ?></option>
-                                <option value="turkey.php"><?php echo $strings['ankara']; ?></option>
-                                <option value="england.php"><?php echo $strings['london']; ?></option>
+                                <option value="france">Paris</option>
+                                <option value="germany">Berlin</option>
+                                <option value="north_korea">Pyongyang</option>
+                                <option value="turkey">Ankara</option>
+                                <option value="england">London</option>
                             </select>
                         </div>
                         <div class="d-grid gap-2">
@@ -43,13 +43,19 @@
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                    <p><?php 
-                        if(isset($_GET['country'])){
-                            $page = $_GET['country'];
-                            include($page);
-                        }
-                    ?>
-                    </p>
+                        <p>
+                            <?php 
+                                if(isset($_GET['country'])){
+                                    $allowedPages = array("france", "germany", "north_korea", "turkey", "england");
+                                    $page = $_GET['country'];
+                                    if(in_array($page, $allowedPages)) {
+                                        include($page . ".php");
+                                    } else {
+                                        echo "Invalid page requested.";
+                                    }
+                                }
+                            ?>
+                        </p>
                     </div>
                 </div>
                 <div class="col-md-3"></div>
