@@ -1,45 +1,43 @@
 <?php
-    require("../../../lang/lang.php");
-    $strings = tr();
-    
-    if( isset($_POST['submit']) ){
+require("../../../lang/lang.php");
+$strings = tr();
 
-        $tmpName = $_FILES['input_image']['tmp_name'];
-        $fileName = $_FILES['input_image']['name'];
+if(isset($_POST['submit'])) {
+    $tmpName = $_FILES['input_image']['tmp_name'];
+    $fileName = $_FILES['input_image']['name'];
 
-        if(!empty($fileName)){
-            
-            $extensions = array("php","php1","php2","php3","php4","php5","php6","php7","php8","pht","phtm","phar","phps","html","htm","shtml","phtml","sh","ini","css","js"); //blacklist
+    if(!empty($fileName)) {
+        $allowedExtensions = array("jpg", "jpeg", "png", "gif"); // Extensiones permitidas
+        $blacklistExtensions = array("php", "php1", "php2", "php3", "php4", "php5", "php6", "php7", "php8", "pht", "phtm", "phar", "phps", "html", "htm", "shtml", "phtml", "sh", "ini", "css", "js"); // Extensiones prohibidas
 
-            $fileExt = pathinfo($fileName)['extension'];
-    
-            if(!file_exists("uploads")){
-                mkdir("uploads");
-            }
-            
-            $uploadPath = "uploads/".$fileName;
-    
-            if( !in_array(strtolower($fileExt),$extensions) ){
-    
-                if( @move_uploaded_file($tmpName,$uploadPath) ){
-                    $status = "success";
-                    
-                }else{
-                    $status = "unsuccess";
-                }
-    
-            }else{
-                $status = "blocked";
-            }
+        $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        }else{
-            $status = "empty";
+        if(!file_exists("uploads")) {
+            mkdir("uploads");
         }
 
+        $uploadPath = "uploads/" . $fileName;
 
+        if(in_array($fileExt, $allowedExtensions) && $_FILES['input_image']['type'] == 'image/'.$fileExt) { // Validar tipo MIME
+            if(!in_array($fileExt, $blacklistExtensions)) { // Verificar si la extensión está en la lista negra
+                if(move_uploaded_file($tmpName, $uploadPath)) {
+                    $status = "success";
+                } else {
+                    $status = "unsuccess";
+                }
+            } else {
+                $status = "blocked";
+            }
+        } else {
+            $status = "blocked";
+        }
+    } else {
+        $status = "empty";
     }
-
+}
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">
