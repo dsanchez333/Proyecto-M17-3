@@ -24,10 +24,11 @@ $strings = tr();
 error_reporting(E_ERROR);
 ini_set('display_errors', 0);
 
-
-
 if (isset($_GET['search'])) {
     $search = $_GET['search'];
+
+    // Evitar ejecución de código entre <>
+    $search = str_replace(['<', '>'], ['&lt;', '&gt;'], $search);
 
     $blacklist = array('{{', '}}', '{%', '%}');
     $search = str_replace($blacklist, '', $search);
@@ -45,10 +46,8 @@ if (isset($_GET['search'])) {
     }
 }
 
-
 ?>
 </div>
-
 
 <script id="VLBar" title="<?= $strings["title"]; ?>" category-id="12" src="/public/assets/js/vlnav.min.js"></script>
 </body>
