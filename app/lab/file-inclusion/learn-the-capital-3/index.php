@@ -1,4 +1,4 @@
-<?php 
+<?php
     error_reporting(0);
     require("../../../lang/lang.php");
     $strings = tr();
@@ -43,19 +43,20 @@
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                    <p><?php 
-                        if(isset($_GET['country'])){
-                            $page = $_GET['country'];
-                            if ( !strstr($page , 'file')) {
-                                echo "ERROR: File not found!";
-                                exit;
-                            } 
-                            else{
-                                include($page);
+                        <p><?php 
+                            if(isset($_GET['country'])){
+                                $allowed_files = array('france.php', 'germany.php', 'north_korea.php', 'turkey.php', 'england.php');
+                                $page = $_GET['country'];
+                                
+                                // Validar que el archivo esté en la lista permitida
+                                if (in_array($page, $allowed_files)) {
+                                    include($page);
+                                } else {
+                                    echo "ERROR: File not found!";
+                                }
                             }
-                        }
-                    ?>
-                    </p>
+                        ?>
+                        </p>
                     </div>
                 </div>
                 <div class="col-md-3"></div>
