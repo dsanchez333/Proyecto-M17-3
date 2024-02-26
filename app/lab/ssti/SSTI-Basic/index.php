@@ -9,30 +9,7 @@ try {
     die("Veritabanı hatası: " . $e->getMessage());
 }
 
-require '../../../public/vendor/autoload.php';
-$loader = new Twig_Loader_String();
-$twig = new Twig\Environment($loader);
-
-if (isset($_POST['submit'])) {
-    try {
-        $userInput = $_POST["content"];
-        $escapedInput = $twig->escape($userInput);
-
-        $query = "INSERT INTO blog_entries (content) VALUES (:content)";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':content', $escapedInput, PDO::PARAM_STR);
-        $stmt->execute();
-    } catch (Exception $e) {
-        echo ('ERROR:' . $e->getMessage());
-    }
-}
-
-$query = "SELECT * FROM blog_entries ORDER BY id DESC ";
-$stmt = $db->prepare($query);
-$stmt->execute();
-$entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -63,12 +40,9 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (isset($_POST['submit'])) {
             try {
                 require '../../../public/vendor/autoload.php';
-                $loader = new Twig_Loader_String();
+                $loader = new Twig\Loader\ArrayLoader(['user_input' => strip_tags($_POST["content"])]);
                 $twig = new Twig\Environment($loader);
-
-                // Utilizar la función de escape de Twig para escapar la entrada del usuario
-                $userInput = $_POST["content"];
-                $escapedInput = $twig->escape($userInput);
+                $escapedInput = $twig->render('user_input');
             } catch (Exception $e) {
                 echo ('ERROR:' . $e->getMessage());
             }
