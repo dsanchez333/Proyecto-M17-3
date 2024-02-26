@@ -12,28 +12,32 @@ $strings = tr();
 </head>
 <body>
 
-
-
 <?php
-
-include( "baglanti.php" );
+include("baglanti.php");
 
 session_start();
-$email = isset($_SESSION['email']) ? $_SESSION['email'] : ''; // If email is set, assign it to $email, otherwise assign it an empty string
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
 
 if (isset($_POST['silButton'])) {
+    try {
+        $db->beginTransaction();
 
-    $sql = "DELETE FROM kayit WHERE email = :email";
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-    
-    if ($stmt->execute()) {
-        echo $strings["reg_del"].'<br>';    //Registration deleted successfully.
-    } else {
-        echo "Error";
+        $sql = "DELETE FROM kayit WHERE email = :email";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            $db->commit();
+            echo $strings["reg_del"] . '<br>'; // Registration deleted successfully.
+        } else {
+            $db->rollBack();
+            echo "Error";
+        }
+    } catch (PDOException $e) {
+        $db->rollBack();
+        echo "Error: " . $e->getMessage();
     }
 }
-
 
 try {
     $sql = "SELECT * FROM kayit WHERE email = :email";
@@ -42,7 +46,6 @@ try {
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Sonuçları ekrana yazdır
     if (count($results) > 0) {
         echo "<h2>$email $strings[registers] </h2>";
         echo "<table class='table'>
@@ -52,7 +55,7 @@ try {
                     <th>$strings[email]</th>
                     <th>$strings[phone]</th>
                 </tr>";
-    
+
         foreach ($results as $row) {
             echo "<tr>
                     <td>" . $row['ad'] . "</td>
@@ -61,21 +64,21 @@ try {
                     <td>" . $row['tel'] . "</td>
                   </tr>";
         }
-    
+
         echo "</table>";
     } else {
-        echo $strings['no_registration'];    //No registration has been found yet..
+        echo $strings['no_registration'];
     }
 } catch (PDOException $e) {
     echo "Sorgu hatası: " . $e->getMessage();
 }
 
 $db = null;
-
 ?>
+
 <form action="" method="POST">
-<a href="index.php" class="btn btn-secondary"><?php echo $strings["back"]?></a>
-<button class="btn btn-danger" type="submit" name="silButton"><?php echo $strings["del"]?></button>
+    <a href="index.php" class="btn btn-secondary"><?php echo $strings["back"] ?></a>
+    <button class="btn btn-danger" type="submit" name="silButton"><?php echo $strings["del"] ?></button>
 </form>
 <script id="VLBar" title="<?= $strings["title"]; ?>" category-id="12" src="/public/assets/js/vlnav.min.js"></script>
 </body>
