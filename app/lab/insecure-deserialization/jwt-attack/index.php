@@ -1,40 +1,41 @@
 <?php
-require "function.php";
-require("../../../lang/lang.php");
-
-$key = "dragon";  // Almacena la clave de forma segura (puede ser en un archivo de configuración o variable de entorno)
-
-if(isset($_COOKIE["jwt"])){
-    try {
-        $decodedJWT = DecodeJWT($_COOKIE["jwt"]);
-    } catch(Exception $e){
-        // Manejar el error de deserialización de forma segura
-        error_log("Error decoding JWT: " . $e->getMessage());
-        header("Location:index.php");
-    }
-}
-
-$lang = tr();
-
-if($_SERVER["REQUEST_METHOD"] == "POST"){
-    if(isset($_POST["usernameInput"]) && isset($_POST["passwordInput"]) && $_POST["usernameInput"] != "" && $_POST["passwordInput"] != ""){
-        
-        $username = filter_input(INPUT_POST, "usernameInput", FILTER_SANITIZE_STRING);
-        $password = filter_input(INPUT_POST, "passwordInput", FILTER_SANITIZE_STRING);
-        
-        $hashedPassword = password_hash("Vulnlab", PASSWORD_DEFAULT);
-
-        if($username == "administrator" && password_verify($password, $hashedPassword)){
-            $jwt = CreateJWT($username);
-            setcookie("jwt", $jwt, time() + 3600, "/", "", false, true); // Configurar opciones de cookie seguras
-            header("Location:index.php");
-        } else if($username == "Yavuzlar" && password_verify($password, $hashedPassword)){
-            $jwt = CreateJWT($username);
-            setcookie("jwt", $jwt, time() + 3600, "/", "", false, true); // Configurar opciones de cookie seguras
+    
+    require "function.php";
+    require("../../../lang/lang.php");
+    // setcookie("jwt","",time()-1);
+    if(isset($_COOKIE["jwt"])){
+        try{
+            $decodedJWT = DecodeJWT($_COOKIE["jwt"]);
+            
+        }catch(Exception $e){
+            print_r("Hata");
             header("Location:index.php");
         }
     }
-}
+    
+    $lang = tr();
+
+    if($_SERVER["REQUEST_METHOD"] == "POST"){
+        if(isset($_POST["usernameInput"]) && isset($_POST["passwordInput"]) && $_POST["usernameInput"] != "" && $_POST["passwordInput"] != ""){
+            
+            $username = htmlspecialchars($_POST["usernameInput"]);
+            $password = htmlspecialchars($_POST["passwordInput"]);
+            
+            if($username == "administrator" && $password == "YavuzlarVulnlab"){
+                    
+                $jwt = CreateJWT($username);
+                setcookie("jwt",$jwt);
+                header("Location:index.php");
+            }else if($username == "Yavuzlar" && $password == "Vulnlab"){
+            
+                $jwt = CreateJWT($username);
+
+                setcookie("jwt",$jwt);
+                header("Location:index.php");
+            }
+
+        }
+    }
 ?>
 
 
@@ -50,7 +51,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 </head>
 
 <body>
-    <a href="https://github.com/danielmiessler/SecLists/blob/master/Passwords/darkweb2017-top100.txt" class="btn btn-primary mt-3 ml-3"><?php echo $lang["WordList"]?></a>
+    <a href="https://github.com/danielmiessler/SecLists/blob/master/Passwords/darkweb2017-top100.txt" class="btn btn-primary mt-3 ml-3">Word List</a>
     <?php if(isset($_COOKIE["jwt"]) && $decodedJWT["username"] == "administrator"):?>
         <a href="clearJWT.php" class="btn btn-primary mt-3 ml-3"><?php echo $lang["Cookie"]?></a>
         <div class="d-flex justify-content-center" style="margin-top: 100px;">
@@ -84,10 +85,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             </button>
                         </form>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <b><?php echo $lang["LoginCredential"]?>:</b>
-                    Yavuzlar:Vulnlab
                 </div>
             </div>
         </div>
