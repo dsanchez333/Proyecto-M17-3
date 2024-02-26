@@ -10,44 +10,44 @@
     require("../../../lang/lang.php");
     $strings = tr();
 
-    $selectUser = $db -> prepare("SELECT * FROM csrf_follow WHERE authority=:authority");
-    $selectUser -> execute(array('authority' => $_SESSION['authority']));
-    $selectUser_Info = $selectUser -> fetch();
+    // Generar y almacenar un token CSRF único en la sesión
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
 
-    $selectFollowers = $db -> prepare("SELECT * FROM csrf_follow WHERE follow_status=:follow_status");
-    $selectFollowers -> execute(array('follow_status' => 'true'));
-    $selectFollowers_Infos = $selectFollowers -> fetchAll(PDO::FETCH_ASSOC);
+    $selectUser = $db->prepare("SELECT * FROM csrf_follow WHERE authority=:authority");
+    $selectUser->execute(array('authority' => $_SESSION['authority']));
+    $selectUser_Info = $selectUser->fetch();
 
-    if( isset($_GET['follow']) ){
+    $selectFollowers = $db->prepare("SELECT * FROM csrf_follow WHERE follow_status=:follow_status");
+    $selectFollowers->execute(array('follow_status' => 'true'));
+    $selectFollowers_Infos = $selectFollowers->fetchAll(PDO::FETCH_ASSOC);
 
-        if( $selectUser_Info['follow_status'] == "false" ){
+    if (isset($_GET['follow'])) {
 
-            $follow_update = $db -> prepare("UPDATE csrf_follow SET follow_status=:follow_status WHERE authority=:authority");
-            $status_follow_update = $follow_update -> execute(array(
+        if ($selectUser_Info['follow_status'] == "false" && $_GET['csrf_token'] === $_SESSION['csrf_token']) {
+
+            $follow_update = $db->prepare("UPDATE csrf_follow SET follow_status=:follow_status WHERE authority=:authority");
+            $status_follow_update = $follow_update->execute(array(
                 'authority' => $_SESSION['authority'],
                 'follow_status' => 'true'
             ));
 
 
-            if($status_follow_update){
-                header("Location: index.php?status=success"); 
+            if ($status_follow_update) {
+                header("Location: index.php?status=success");
                 exit;
-            }else{
+            } else {
                 header("Location: index.php?status=unsuccess");
                 exit;
             }
-
-        }else{
-
+        } else {
             header("Location: index.php?status=following");
             exit;
-
         }
     }
 
 ?>
-
-
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">
 
@@ -85,33 +85,33 @@
                 <div class="col-md-6">
 
                     <div class="alert-box" id="alert-box">
-                    <?php
+                        <?php
 
-                    if( isset($_GET['status']) ){
-                        if($_GET['status'] == "success"){
-                            echo '<div class="alert alert-success mt-2" role="alert">'
-                            .$strings['alert_success'].
-                            '</div>';
-                        }
-                        if($_GET['status'] == "unsuccess"){
-                            echo '<div class="alert alert-danger mt-2" role="alert">'
-                            .$strings['alert_unsuccess'].
-                            '</div>';
-                        }
-                        if($_GET['status'] == "following"){
-                            echo '<div class="alert alert-danger mt-2" role="alert">'
-                            .$strings['alert_following'].
-                            '</div>';
+                        if (isset($_GET['status'])) {
+                            if ($_GET['status'] == "success") {
+                                echo '<div class="alert alert-success mt-2" role="alert">' .
+                                    $strings['alert_success'] .
+                                    '</div>';
+                            }
+                            if ($_GET['status'] == "unsuccess") {
+                                echo '<div class="alert alert-danger mt-2" role="alert">' .
+                                    $strings['alert_unsuccess'] .
+                                    '</div>';
+                            }
+                            if ($_GET['status'] == "following") {
+                                echo '<div class="alert alert-danger mt-2" role="alert">' .
+                                    $strings['alert_following'] .
+                                    '</div>';
+                            }
                         }
 
-                    }
-
-                    ?>
+                        ?>
                     </div>
 
                     <h3 class="mb-3"><?= $strings['middle_title']; ?> <?= $_SESSION['authority']; ?></h3>
 
                     <form action="index.php" method="get">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="d-grid gap-2">
                             <label for="" class="form-label"><?= $strings['button_label']; ?></label>
                             <button class="btn btn-primary mb-4" type="submit" name="follow" id="follow" value="follow"><?= $strings['button']; ?></button>
@@ -121,25 +121,25 @@
                     <table class="table table-striped">
                         <thead>
                             <tr class="text-center">
-                            <th scope="col">#</th>
-                            <th scope="col"><?= $strings['table_followers']; ?></th>
+                                <th scope="col">#</th>
+                                <th scope="col"><?= $strings['table_followers']; ?></th>
                             </tr>
                         </thead>
                         <tbody id="tbody">
                             <?php
-                                $id = 1;
-                                foreach($selectFollowers_Infos as $selectFollowers_Info){
-                                    echo '<tr class="text-center">
-                                    <th scope="row">'.$id.'</th>
-                                    <td>'.$selectFollowers_Info['authority'].'</td>
+                            $id = 1;
+                            foreach ($selectFollowers_Infos as $selectFollowers_Info) {
+                                echo '<tr class="text-center">
+                                    <th scope="row">' . $id . '</th>
+                                    <td>' . $selectFollowers_Info['authority'] . '</td>
                                     </tr>';
-                                    $id++;
-                                }
+                                $id++;
+                            }
 
                             ?>
                         </tbody>
                     </table>
-                    
+
                 </div>
                 <div class="col-md-3"></div>
             </div>
@@ -156,22 +156,21 @@
                     </div>
                 </div>
 
-                <div class="chatbox__messages" id="chatbox__messages"> 
+                <div class="chatbox__messages" id="chatbox__messages">
                     <?php
-                        $select = $db -> prepare("SELECT * FROM csrf_chat ORDER BY id DESC");
-                        $select -> execute();
-                        $db_messages = $select -> fetchAll(PDO::FETCH_ASSOC);
-                        
-                        foreach($db_messages as $db_message){
-  
-                            if($db_message['authority'] == "user"){
-                                echo '<div class="messages__item messages__item--operator">'.$db_message['message'].'</div>';
-                            }
-                            if($db_message['authority'] == "admin"){
-                                echo '<div class="messages__item messages__item--visitor">'.$db_message['message'].' <pre class="m-0 mt-1 text-danger">admin</pre> </div> ';
-                            }
-                            
-                            }
+                    $select = $db->prepare("SELECT * FROM csrf_chat ORDER BY id DESC");
+                    $select->execute();
+                    $db_messages = $select->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($db_messages as $db_message) {
+
+                        if ($db_message['authority'] == "user") {
+                            echo '<div class="messages__item messages__item--operator">' . $db_message['message'] . '</div>';
+                        }
+                        if ($db_message['authority'] == "admin") {
+                            echo '<div class="messages__item messages__item--visitor">' . $db_message['message'] . ' <pre class="m-0 mt-1 text-danger">admin</pre> </div> ';
+                        }
+                    }
 
                     ?>
                 </div>
@@ -185,43 +184,43 @@
 
             </div>
             <div class="chatbox__button">
-            <button>button</button>
+                <button>button</button>
             </div>
         </div>
 
     </div>
-    
-    
+
+
 
     <script type="text/javascript">
-    function Post() {
-        $.ajax({
-            type: 'POST',   
-            url: 'post.php',  
-            data: $('form#form').serialize(), 
-            success: function(incoming) { 
+        function Post() {
+            $.ajax({
+                type: 'POST',
+                url: 'post.php',
+                data: $('form#form').serialize(),
+                success: function(incoming) {
 
-                $('#chatbox__messages').html(incoming);
+                    $('#chatbox__messages').html(incoming);
 
-                document.getElementById("form").reset();
-                
-                Money();
+                    document.getElementById("form").reset();
 
-            }
-        });
-    }
+                    Money();
 
-    function Money() {
-        $.ajax({
-            type: 'POST',   
-            url: 'followers.php',
-            success: function(incoming) { 
+                }
+            });
+        }
 
-                $('#tbody').html(incoming);
+        function Money() {
+            $.ajax({
+                type: 'POST',
+                url: 'followers.php',
+                success: function(incoming) {
 
-            }
-        });
-    }
+                    $('#tbody').html(incoming);
+
+                }
+            });
+        }
     </script>
 
     <script src="assets/js/jquery.min.js"></script>
@@ -229,7 +228,7 @@
     <script src="assets/js/Chat.js"></script>
     <script src="assets/js/app.js"></script>
     <script id="VLBar" title="<?= $strings['title']; ?>" category-id="8" src="/public/assets/js/vlnav.min.js"></script>
-    
+
 </body>
 
 </html>
