@@ -6,7 +6,7 @@ try {
     $db = new PDO('sqlite:database.db');
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Veritabanı hatası: " . $e->getMessage());
+    die("Veritabanı hatası: " . htmlspecialchars($e->getMessage()));
 }
 
 ?>
@@ -40,17 +40,18 @@ try {
         if (isset($_POST['submit'])) {
             try {
                 require '../../../public/vendor/autoload.php';
-                $loader = new Twig\Loader\ArrayLoader(['user_input' => strip_tags($_POST["content"])]);
-                $twig = new Twig\Environment($loader);
-                $escapedInput = htmlspecialchars($twig->render('user_input'));
+
+                // Evitar el uso directo de Twig para renderizar el contenido del usuario
+                $userInput = strip_tags($_POST["content"]);
+                $userInput = htmlspecialchars($userInput);
+
+                $query = "INSERT INTO blog_entries (content) VALUES (:content)";
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(':content', $userInput, PDO::PARAM_STR);
+                $stmt->execute();
             } catch (Exception $e) {
                 echo ('ERROR:' . htmlspecialchars($e->getMessage()));
             }
-
-            $query = "INSERT INTO blog_entries (content) VALUES (:content)";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':content', $escapedInput, PDO::PARAM_STR);
-            $stmt->execute();
         }
 
         $query = "SELECT * FROM blog_entries ORDER BY id DESC ";
@@ -79,4 +80,3 @@ try {
 </body>
 
 </html>
-
