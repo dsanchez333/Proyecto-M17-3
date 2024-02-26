@@ -2,7 +2,6 @@
 require("../../../lang/lang.php");
 $strings = tr();
 
-
 try {
     $db = new PDO('sqlite:database.db');
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -19,7 +18,6 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PHP Blog</title>
-
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -44,8 +42,10 @@ try {
                 require '../../../public/vendor/autoload.php';
                 $loader = new Twig_Loader_String();
                 $twig = new Twig\Environment($loader);
-                $userInput = strip_tags($_POST["content"]);
-                $escapedInput = $twig->render($userInput);
+
+                // Utilizar la función de escape de Twig para escapar la entrada del usuario
+                $userInput = $_POST["content"];
+                $escapedInput = $twig->escape($userInput);
             } catch (Exception $e) {
                 echo ('ERROR:' . $e->getMessage());
             }
@@ -55,7 +55,6 @@ try {
             $stmt->bindParam(':content', $escapedInput, PDO::PARAM_STR);
             $stmt->execute();
         }
-
 
         $query = "SELECT * FROM blog_entries ORDER BY id DESC ";
         $stmt = $db->prepare($query);
