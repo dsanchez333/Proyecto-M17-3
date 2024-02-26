@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../assets/css/bootstrap.css">
     <title><?php echo $strings['title']; ?></title>
     <style>
-        p{
+        p {
             margin-top: 15px;
         }
     </style>
@@ -45,10 +45,13 @@
                     <div class="mb-3">
                     <p><?php 
                         if(isset($_GET['country'])){
+                            $allowedPages = array("france.php", "germany.php", "north_korea.php", "turkey.php", "england.php");
                             $page = $_GET['country'];
-                            $page = str_replace( array( "http://", "https://" ), "", $page ); 
-                            $page = str_replace( array( "../", "..\"" ), "", $page );
-                            include($page);
+                            if(in_array($page, $allowedPages)) {
+                                include($page);
+                            } else {
+                                echo "Invalid page requested.";
+                            }
                         }
                     ?>
                     </p>
