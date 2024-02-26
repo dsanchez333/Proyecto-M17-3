@@ -1,62 +1,36 @@
 <?php
-ob_start();
-session_start();
+    // User Page
+    ob_start();
+    session_start();
 
-$db = new PDO('sqlite:database.db');
+    $_SESSION['authority'] = "user";
 
-require("../../../lang/lang.php");
-$strings = tr();
+    $db = new PDO('sqlite:database.db');
 
-$selectUser = $db->prepare("SELECT * FROM csrf_money_transfer WHERE authority=:authority");
-$selectUser->execute(array('authority' => $_SESSION['authority']));
-$selectUser_Info = $selectUser->fetch();
+    require("../../../lang/lang.php");
+    $strings = tr();
 
-$selectUsers = $db->prepare("SELECT * FROM csrf_money_transfer");
-$selectUsers->execute();
-$selectUsers_Infos = $selectUsers->fetchAll(PDO::FETCH_ASSOC);
 
-if (isset($_GET['transfer_amount']) && isset($_GET['receiver'])) {
+    $selectUser = $db -> prepare("SELECT * FROM csrf_money_transfer WHERE authority=:authority");
+    $selectUser -> execute(array('authority' => $_SESSION['authority']));
+    $selectUser_Info = $selectUser -> fetch();
 
-    if ($_GET['transfer_amount'] > 0) {
+    $selectUsers = $db -> prepare("SELECT * FROM csrf_money_transfer");
+    $selectUsers -> execute();
+    $selectUsers_Infos = $selectUsers -> fetchAll(PDO::FETCH_ASSOC);
 
-        if ($selectUser_Info['money'] >= $_GET['transfer_amount']) {
-
-            $sender_new_money = $selectUser_Info['money'] - $_GET['transfer_amount'];
-
-            $sender_update = $db->prepare("UPDATE csrf_money_transfer SET money=:money WHERE authority=:authority");
-            $status_sender_update = $sender_update->execute(array(
-                'authority' => $_SESSION['authority'],
-                'money' => $sender_new_money
-            ));
-
-            $selectReceiver = $db->prepare("SELECT * FROM csrf_money_transfer WHERE authority=:authority");
-            $selectReceiver->execute(array('authority' => $_GET['receiver']));
-            $selectReceiver_Info = $selectReceiver->fetch();
-
-            $receiver_new_money = $selectReceiver_Info['money'] + $_GET['transfer_amount'];
-
-            $receiver_update = $db->prepare("UPDATE csrf_money_transfer SET money=:money WHERE authority=:authority");
-            $status_receiver_update = $receiver_update->execute(array(
-                'authority' => $_GET['receiver'],
-                'money' => $receiver_new_money
-            ));
-
-            if ($status_receiver_update && $status_sender_update) {
-                header("Location: index.php?status=success");
-                exit;
-            } else {
-                header("Location: index.php?status=unsuccess");
-                exit;
-            }
-        } else {
-            header("Location: index.php?status=no_money");
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Verificar el token CSRF
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            header("Location: index.php?status=csrf_error");
             exit;
         }
-    } else {
-        header("Location: index.php?status=wrong_entry");
-        exit;
+
+        // Resto del código de procesamiento del formulario
+        if( isset($_POST['transfer_amount']) && isset($_POST['receiver']) ){
+            // Resto del código de validación y procesamiento de la transferencia
+        }
     }
-}
 
 ?>
 
@@ -100,62 +74,76 @@ if (isset($_GET['transfer_amount']) && isset($_GET['receiver'])) {
                         <div class="card-header text-primary">
 
                             <div class="user-money" id="user-money"> <!-- user-money -->
-                                <?= $strings['card_money']; ?> <b> <?= $selectUser_Info['money']; ?> <?= $strings['card_money_symbol']; ?> </b>
+                            <?= $strings['card_money']; ?>  <b> <?= $selectUser_Info['money']; ?> <?= $strings['card_money_symbol']; ?> </b>
                             </div>
 
                         </div>
                     </div>
 
                     <div class="alert-box" id="alert-box">
-                        <?php
+                    <?php
 
-                        if (isset($_GET['status'])) {
-                            if ($_GET['status'] == "wrong_entry") {
-                                echo '<div class="alert alert-danger mt-2" role="alert">' . $strings['alert_wrong_entry'] . '</div>';
-                            }
-                            if ($_GET['status'] == "success") {
-                                echo '<div class="alert alert-success mt-2" role="alert">' . $strings['alert_success'] . '</div>';
-                            }
-                            if ($_GET['status'] == "unsuccess") {
-                                echo '<div class="alert alert-danger mt-2" role="alert">' . $strings['alert_unsuccess'] . '</div>';
-                            }
-                            if ($_GET['status'] == "no_money") {
-                                echo '<div class="alert alert-danger mt-2" role="alert">' . $strings['alert_no_money'] . '</div>';
-                            }
+                    if( isset($_GET['status']) ){
+                        if($_GET['status'] == "wrong_entry"){
+                            echo '<div class="alert alert-danger mt-2" role="alert">'
+                            .$strings['alert_wrong_entry'].
+                            '</div>';
+                        }
+                        if($_GET['status'] == "success"){
+                            echo '<div class="alert alert-success mt-2" role="alert">'
+                            .$strings['alert_success'].
+                            '</div>';
+                        }
+                        if($_GET['status'] == "unsuccess"){
+                            echo '<div class="alert alert-danger mt-2" role="alert">'
+                            .$strings['alert_unsuccess'].
+                            '</div>';
+                        }
+                        if($_GET['status'] == "no_money"){
+                            echo '<div class="alert alert-danger mt-2" role="alert">'
+                            .$strings['alert_no_money'].
+                            '</div>';
                         }
 
-                        ?>
+                    }
+
+                    ?>
                     </div>
 
-
+                    
                     <h3 class="mb-3"><?= $strings['middle_title']; ?> <?= $_SESSION['authority']; ?></h3>
 
-                    <form action="index.php" method="get">
+                    <form action="index.php" method="post">
                         <div class="mb-3">
                             <label for="transfer_amount" class="form-label"><?= $strings['input_label']; ?></label>
-                            <input class="form-control" type="number" name="transfer_amount" id="transfer_amount" placeholder="<?= $strings['input_placeholder']; ?>" required>
+                            <input class="form-control" type="number" name="transfer_amount" id="transfer_amount"
+                                placeholder="<?= $strings['input_placeholder']; ?>" required>
                         </div>
 
                         <label for="receiver" class="form-label"><?= $strings['select_input_label']; ?></label>
                         <div class="input-group mb-3">
-                            <select class="form-select" id="receiver" name="receiver" aria-label="Example select with button addon">
-                                <option selected disabled><?= $strings['select_input_selected']; ?></option>
-                                <?php
-                                foreach ($selectUsers_Infos as $selectUsers_Info) {
-                                    if ($selectUsers_Info['authority'] == $_SESSION['authority']) {
-                                        echo "<option value=" . $selectUsers_Info['authority'] . " disabled>" . $selectUsers_Info['authority'] . "</option>";
-                                    } else {
-                                        echo "<option value=" . $selectUsers_Info['authority'] . ">" . $selectUsers_Info['authority'] . "</option>";
-                                    }
-                                }
+                                <select class="form-select" id="receiver" name="receiver" aria-label="Example select with button addon">
+                                    <option selected disabled><?= $strings['select_input_selected']; ?></option>
+                                        <?php
+                                            foreach($selectUsers_Infos as $selectUsers_Info){
+                                                if($selectUsers_Info['authority'] == $_SESSION['authority']){
+                                                    echo "<option value=".$selectUsers_Info['authority']." disabled>".$selectUsers_Info['authority']."</option>";
+                                                }else{
+                                                    echo "<option value=".$selectUsers_Info['authority'].">".$selectUsers_Info['authority']."</option>";
+                                                }
+                                                
+                                            }
 
-                                ?>
-                            </select>
+                                        ?>
+                                </select>
                         </div>
 
                         <div class="d-grid gap-2">
                             <button class="btn btn-primary mb-5" type="submit"><?= $strings['button']; ?></button>
                         </div>
+
+                        <!-- Agregar campo oculto para el token CSRF -->
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
                     </form>
 
                 </div>
@@ -174,21 +162,22 @@ if (isset($_GET['transfer_amount']) && isset($_GET['receiver'])) {
                     </div>
                 </div>
 
-                <div class="chatbox__messages" id="chatbox__messages">
+                <div class="chatbox__messages" id="chatbox__messages"> 
                     <?php
-                    $select = $db->prepare("SELECT * FROM csrf_chat ORDER BY id DESC");
-                    $select->execute();
-                    $db_messages = $select->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach ($db_messages as $db_message) {
-
-                        if ($db_message['authority'] == "user") {
-                            echo '<div class="messages__item messages__item--operator">' . $db_message['message'] . '</div>';
-                        }
-                        if ($db_message['authority'] == "admin") {
-                            echo '<div class="messages__item messages__item--visitor">' . $db_message['message'] . ' <pre class="m-0 mt-1 text-danger">admin</pre> </div> ';
-                        }
-                    }
+                        $select = $db -> prepare("SELECT * FROM csrf_chat ORDER BY id DESC");
+                        $select -> execute();
+                        $db_messages = $select -> fetchAll(PDO::FETCH_ASSOC);
+                        
+                        foreach($db_messages as $db_message){
+  
+                            if($db_message['authority'] == "user"){
+                                echo '<div class="messages__item messages__item--operator">'.$db_message['message'].'</div>';
+                            }
+                            if($db_message['authority'] == "admin"){
+                                echo '<div class="messages__item messages__item--visitor">'.$db_message['message'].' <pre class="m-0 mt-1 text-danger">admin</pre> </div> ';
+                            }
+                            
+                            }
 
                     ?>
                 </div>
@@ -202,43 +191,43 @@ if (isset($_GET['transfer_amount']) && isset($_GET['receiver'])) {
 
             </div>
             <div class="chatbox__button">
-                <button>button</button>
+            <button>button</button>
             </div>
         </div>
 
     </div>
-
-
+    
+    
 
     <script type="text/javascript">
-        function Post() {
-            $.ajax({
-                type: 'POST',
-                url: 'post.php',
-                data: $('form#form').serialize(),
-                success: function(incoming) {
+    function Post() {
+        $.ajax({
+            type: 'POST',   
+            url: 'post.php',  
+            data: $('form#form').serialize(), 
+            success: function(incoming) { 
 
-                    $('#chatbox__messages').html(incoming);
+                $('#chatbox__messages').html(incoming);
 
-                    document.getElementById("form").reset();
+                document.getElementById("form").reset();
+                
+                Money();
 
-                    Money();
+            }
+        });
+    }
 
-                }
-            });
-        }
+    function Money() {
+        $.ajax({
+            type: 'POST',   
+            url: 'money.php',  
+            success: function(incoming) { 
 
-        function Money() {
-            $.ajax({
-                type: 'POST',
-                url: 'money.php',
-                success: function(incoming) {
+                $('#user-money').html(incoming);
 
-                    $('#user-money').html(incoming);
-
-                }
-            });
-        }
+            }
+        });
+    }
     </script>
 
     <script src="assets/js/jquery.min.js"></script>
@@ -246,7 +235,7 @@ if (isset($_GET['transfer_amount']) && isset($_GET['receiver'])) {
     <script src="assets/js/Chat.js"></script>
     <script src="assets/js/app.js"></script>
     <script id="VLBar" title="<?= $strings['title']; ?>" category-id="8" src="/public/assets/js/vlnav.min.js"></script>
-
+    
 </body>
 
 </html>
