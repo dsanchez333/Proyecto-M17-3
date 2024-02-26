@@ -9,7 +9,30 @@ try {
     die("Veritabanı hatası: " . $e->getMessage());
 }
 
+require '../../../public/vendor/autoload.php';
+$loader = new Twig_Loader_String();
+$twig = new Twig\Environment($loader);
+
+if (isset($_POST['submit'])) {
+    try {
+        $userInput = $_POST["content"];
+        $escapedInput = $twig->escape($userInput);
+
+        $query = "INSERT INTO blog_entries (content) VALUES (:content)";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':content', $escapedInput, PDO::PARAM_STR);
+        $stmt->execute();
+    } catch (Exception $e) {
+        echo ('ERROR:' . $e->getMessage());
+    }
+}
+
+$query = "SELECT * FROM blog_entries ORDER BY id DESC ";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="tr">
