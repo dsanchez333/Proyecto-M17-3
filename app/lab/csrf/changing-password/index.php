@@ -21,15 +21,19 @@
     $selectAdmin->execute(array('authority' => "admin"));
     $selectAdmin_Password = $selectAdmin->fetch();
 
-    if (isset($_GET['new_password']) && isset($_GET['confirm_password']) && isset($_GET['csrf_token'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password']) && isset($_POST['confirm_password']) && isset($_POST['csrf_token'])) {
         // Verificar el token CSRF
-        if ($_GET['csrf_token'] === $_SESSION['csrf_token']) {
-            if ($_GET['new_password'] == $_GET['confirm_password']) {
+        if ($_POST['csrf_token'] === $_SESSION['csrf_token']) {
+            // Validar contraseñas y aplicar htmlspecialchars
+            $new_password = htmlspecialchars($_POST['new_password']);
+            $confirm_password = htmlspecialchars($_POST['confirm_password']);
+
+            if ($new_password == $confirm_password) {
 
                 $insert = $db->prepare("UPDATE csrf_changing_password SET password=:password WHERE authority=:authority");
                 $status_insert = $insert->execute(array(
                     'authority' => $_SESSION['authority'],
-                    'password' => $_GET['new_password']
+                    'password' => $new_password
                 ));
 
                 if ($status_insert) {
@@ -119,13 +123,15 @@
 
                     <h3 class="mb-3"><?= $strings['middle_title']; ?> <?= $_SESSION['authority']; ?></h3>
 
-                    <form action="index.php" method="get">
+                    <form action="index.php" method="post">
                         <div class="mb-3">
                             <label for="new_password" class="form-label"><?= $strings['new_password_input']; ?></label>
+                            <!-- Aplicar htmlspecialchars en los valores de los campos -->
                             <input class="form-control" type="text" name="new_password" id="new_password"
                                 placeholder="<?= $strings['new_password_input_placeholder']; ?>" required>
 
                             <label for="confirm_password" class="form-label mt-2"><?= $strings['confirm_password_input']; ?></label>
+                            <!-- Aplicar htmlspecialchars en los valores de los campos -->
                             <input class="form-control" type="text" name="confirm_password" id="confirm_password"
                                 placeholder="<?= $strings['confirm_password_input_placeholder']; ?>" required>
 
@@ -158,26 +164,10 @@
                         $select = $db->prepare("SELECT * FROM csrf_chat ORDER BY id DESC");
                         $select->execute();
                         $db_messages = $select->fetchAll(PDO::FETCH_ASSOC);
-                        
                         foreach ($db_messages as $db_message) {
-
-                            if ($_SESSION['authority'] == "user") {
-                                if ($db_message['authority'] == "user") {
-                                    echo '<div class="messages__item messages__item--operator">'.$db_message['message'].'</div>';
-                                }
-                                if ($db_message['authority'] == "admin") {
-                                    echo '<div class="messages__item messages__item--visitor">'.$db_message['message'].' <pre class="m-0 mt-1 text-danger">admin</pre> </div> ';
-                                }
-                            }
-
-                            if ($_SESSION['authority'] == "admin") {
-                                if ($db_message['authority'] == "admin") {
-                                    echo '<div class="messages__item messages__item--operator">'.$db_message['message'].'</div>';
-                                }
-                                if ($db_message['authority'] == "user") {
-                                    echo '<div class="messages__item messages__item--visitor">'.$db_message['message'].'<pre class="m-0 mt-1 text-danger">user</pre></div> ';
-                                }
-                            }
+                            // Aplicar htmlspecialchars en el mensaje del chat
+                            $message = htmlspecialchars($db_message['message']);
+                            echo '<div class="messages__item messages__item--operator">' . $message . '</div>';
                         }
                     ?>
                 </div>
@@ -191,14 +181,12 @@
 
             </div>
             <div class="chatbox__button">
-                <button>button</button>
+            <button>button</button>
             </div>
         </div>
 
     </div>
     
-    
-
     <script type="text/javascript">
     function Post() {
         $.ajax({
@@ -206,8 +194,11 @@
             url: 'post.php',  
             data: $('form#form').serialize(), 
             success: function(incoming) { 
+
                 $('#chatbox__messages').html(incoming);
+
                 document.getElementById("form").reset();
+
             }
         });
     }
